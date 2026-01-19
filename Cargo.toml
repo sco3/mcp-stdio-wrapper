@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+dotenvy = "0.15.7"
 flume = "0.12.0"
 rmcp = "0.13.0"
 serde = { version = "1.0.228", features = ["derive"] }
@@ -11,3 +12,4 @@ serde_json = "1.0.149"
 tokio = { version = "1.49.0", features = ["full"] }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"
+envy = "0.4.2"
