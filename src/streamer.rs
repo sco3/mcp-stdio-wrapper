@@ -10,6 +10,13 @@ use crate::post_result::PostResult;
 pub struct McpStreamClient {
     client: Client,
     url: String,
+    session_id: Option<String>,
+}
+
+impl McpStreamClient {
+    pub fn set_session_id(&mut self, id: String) {
+        self.session_id = Some(id);
+    }
 }
 
 impl McpStreamClient {
@@ -37,7 +44,11 @@ impl McpStreamClient {
                 std::process::exit(1);
             });
 
-        Self { client, url }
+        Self {
+            client,
+            url,
+            session_id: None,
+        }
     }
     #[allow(dead_code)]
     /// Opens a stream and pumps raw chunks into the provided flume channel
@@ -58,10 +69,14 @@ impl McpStreamClient {
             return Err(format!("Server error: {}", response.status()));
         }
 
-        let id = if let Some(val) = response.headers().get("mcp-session-id") { if let Ok(s) = val.to_str() { Some(s.to_string()) } else {
-            error!("Header contains invalid characters");
-            None
-        } } else {
+        let id = if let Some(val) = response.headers().get("mcp-session-id") {
+            if let Ok(s) = val.to_str() {
+                Some(s.to_string())
+            } else {
+                error!("Header contains invalid characters");
+                None
+            }
+        } else {
             error!("Mcp-Session-Id not found");
             None
         };

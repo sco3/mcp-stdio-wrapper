@@ -1,6 +1,6 @@
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
-use tracing::{debug, error};
+use tracing::{debug, error, info};
 
 const URL: &str = "http://localhost:8000/mcp";
 pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"wrapper","version":"0.0.1"}}}"#;
@@ -9,7 +9,7 @@ pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params"
 async fn main() {
     init_logger();
 
-    let client = McpStreamClient::new(URL.to_owned());
+    let mut client = McpStreamClient::new(URL.to_owned());
 
     debug!("Start {client:?}");
 
@@ -17,6 +17,10 @@ async fn main() {
     match result {
         Ok(post_data) => {
             debug!("Post {post_data:?}");
+            if let Some(ref id) = post_data.session_id {
+                client.set_session_id(id.clone());
+                info!("Session id: {id}")
+            }
         }
         Err(e) => {
             error!("Error: {e}");
