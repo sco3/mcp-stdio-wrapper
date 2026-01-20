@@ -1,11 +1,14 @@
 use std::io;
-use tracing_subscriber;
+use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-/// initializes logger
-pub (crate) fn init_logger() {
-    tracing_subscriber::fmt()
-        .with_writer(io::stderr) // Redirects output to stderr
+/// initializes logger to debug by default
+pub(crate) fn init_logger() {
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+
+    tracing_subscriber::registry()
+        .with(filter)
+        .with(fmt::layer().with_writer(io::stderr))
         .init();
 
-    tracing::info!("Logger output set to stderr");
+    tracing::debug!("Logger initialized with DEBUG level on stderr");
 }
