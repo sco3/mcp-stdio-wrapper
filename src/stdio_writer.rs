@@ -6,7 +6,7 @@ pub fn spawn_writer(rx: Receiver<String>) -> tokio::task::JoinHandle<()> {
     tokio::spawn(async move {
         let mut stdout = BufWriter::new(io::stdout());
         while let Ok(message) = rx.recv_async().await {
-            debug!("Received: {}", message);
+            debug!("Write: {}", message);
             if let Err(e) = stdout.write_all(message.as_bytes()).await {
                 error!("Failed to write to stdout: {}", e);
                 break;
