@@ -23,7 +23,7 @@ impl McpStreamClient {
     }
     #[allow(dead_code)]
     ///  session id
-    pub fn get_session_id(&self) -> Option<&String> {
+    #[must_use] pub fn get_session_id(&self) -> Option<&String> {
         self.session_id.as_ref()
     }
 }
