@@ -16,13 +16,15 @@ use tracing::info;
 #[tokio::main]
 async fn main() {
     init_logger();
-    info!("Start");
     let config = Config::from_cli();
     info!("{config:?}");
 
-    //let (_tx, _rx) = bounded::<String>(config.concurrency);
+    info!("Start");
 
     let stdio_rx = spawn_reader();
-    spawn_writer(stdio_rx);
+    let signal = spawn_writer(stdio_rx);
+
+    let _ = signal.await;
+
     info!("Finish");
 }

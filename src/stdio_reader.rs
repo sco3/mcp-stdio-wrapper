@@ -6,7 +6,6 @@ pub(crate) fn spawn_reader() -> Receiver<String> {
     let (tx, rx) = flume::unbounded();
 
     tokio::spawn(async move {
-        // tokio::io::stdin() implements AsyncRead
         let stdin = io::stdin();
         let mut reader = BufReader::new(stdin).lines();
 
