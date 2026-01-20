@@ -930,13 +930,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "mcp-stdio-wrapper"
+name = "mcp_stdio_wrapper"
 version = "0.1.0"
 dependencies = [
  "clap",
  "dotenvy",
  "envy",
  "flume",
+ "futures",
  "reqwest",
  "rmcp",
  "serde",

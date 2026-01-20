@@ -6,6 +6,7 @@ mod logger;
 mod mcp_workers;
 mod stdio_reader;
 mod stdio_writer;
+mod streamer;
 
 use crate::config::Config;
 use crate::logger::init_logger;

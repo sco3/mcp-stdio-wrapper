@@ -1,6 +1,9 @@
+use mcp_stdio_wrapper::streamer::McpStreamClient;
 
-#[cfg(feature = "manual_test")]
+#[cfg(feature = "manual")]
 #[tokio::test]
+
 async fn test_streamer() {
-    println!("ok")
+    let client = McpStreamClient::new("http://localhost:8000/mcp".to_owned());
+    println!("Start {client:?}");
 }
