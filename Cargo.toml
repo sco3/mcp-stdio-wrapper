@@ -14,3 +14,8 @@ tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 envy = "0.4.2"
 clap = { version = "4.5.54", features = ["derive"] }
+reqwest = { version = "0.13.1", features = ["json", "stream"] }
+
+
+[features]
+manual_test = []
