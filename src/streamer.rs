@@ -41,13 +41,12 @@ impl McpStreamClient {
     }
     #[allow(dead_code)]
     /// Opens a stream and pumps raw chunks into the provided flume channel
+    /// # Errors on failed request or server errors
     pub async fn stream_post(&self, payload: String) -> Result<String, String> {
         let mut result = String::new();
         let response = self
             .client
             .post(&self.url)
-            // .header(CONTENT_TYPE, "application/json")
-            // .header(ACCEPT, "application/json, text/event-stream")
             .body(payload)
             .send()
             .await
@@ -65,7 +64,7 @@ impl McpStreamClient {
                     let chunk = String::from_utf8_lossy(&bytes);
                     result.push_str(&chunk);
                 }
-                Err(e) => return Err(format!("Stream interrupted: {}", e)),
+                Err(e) => return Err(format!("Stream interrupted: {e}")),
             }
         }
 
