@@ -2,6 +2,7 @@ use futures::StreamExt;
 use reqwest::header::{ACCEPT, CONTENT_TYPE};
 use reqwest::{Client, header};
 use std::time::Duration;
+use tracing::error;
 
 pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"demo","version":"0.0.1"}}}"#;
 
@@ -29,7 +30,12 @@ impl McpStreamClient {
             .default_headers(headers)
             .tcp_keepalive(Duration::from_secs(60))
             .build()
-            .expect("Failed to build reqwest client");
+            .unwrap_or_else(|error| {
+                // Log to standard error (standard for CLI tools)
+                error!("Error: {error}");
+                // Terminate with code 1 (or 255 for -1 equivalent)
+                std::process::exit(1);
+            });
 
         Self { client, url }
     }
@@ -45,7 +51,7 @@ impl McpStreamClient {
             .body(payload)
             .send()
             .await
-            .map_err(|e| format!("Request failed: {}", e))?;
+            .map_err(|e| format!("Request failed: {e}"))?;
 
         if !response.status().is_success() {
             return Err(format!("Server error: {}", response.status()));
