@@ -1,10 +1,10 @@
 use futures::StreamExt;
 use reqwest::header::{ACCEPT, CONTENT_TYPE};
-use reqwest::{Client, header};
+use reqwest::{header, Client};
 use std::time::Duration;
 use tracing::error;
 
-pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"demo","version":"0.0.1"}}}"#;
+use crate::post_result::PostResult;
 
 #[derive(Debug)]
 pub struct McpStreamClient {
@@ -43,10 +43,8 @@ impl McpStreamClient {
     /// Opens a stream and pumps raw chunks into the provided flume channel
     /// # Errors
     ///
-    /// This function will return an error if the `reqwest` client builder fails,
-    /// which can happen if the TLS backend cannot be initialized or if the
-    /// provided default headers are invalid.
-    pub async fn stream_post(&self, payload: String) -> Result<String, String> {
+    /// This function will return an error if the `reqwest` fails
+    pub async fn stream_post(&self, payload: String) -> Result<PostResult, String> {
         let mut result = String::new();
         let response = self
             .client
@@ -60,6 +58,20 @@ impl McpStreamClient {
             return Err(format!("Server error: {}", response.status()));
         }
 
+        let id = match response.headers().get("mcp-session-id") {
+            Some(val) => match val.to_str() {
+                Ok(s) => Some(s.to_string()),
+                Err(_) => {
+                    error!("Header contains invalid characters");
+                    None
+                }
+            },
+            None => {
+                error!("Mcp-Session-Id not found");
+                None
+            }
+        };
+
         let mut stream = response.bytes_stream();
 
         while let Some(item) = stream.next().await {
@@ -72,6 +84,9 @@ impl McpStreamClient {
             }
         }
 
-        Ok(result)
+        Ok(PostResult {
+            out: result,
+            session_id: id,
+        })
     }
 }
