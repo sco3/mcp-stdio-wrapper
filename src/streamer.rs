@@ -16,8 +16,15 @@ pub struct McpStreamClient {
 impl McpStreamClient {
     #[allow(dead_code)]
     /// sets received session id
-    pub fn set_session_id(&mut self, id: String) {
-        self.session_id = Some(id);
+    pub fn set_session_id(&mut self, id: Option<String>) {
+        if self.session_id.is_none() && id.is_some() {
+            self.session_id = id;
+        }
+    }
+    #[allow(dead_code)]
+    ///  session id
+    pub fn get_session_id(&self) -> Option<&String> {
+        self.session_id.as_ref()
     }
 }
 

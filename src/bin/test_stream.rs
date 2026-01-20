@@ -17,13 +17,12 @@ async fn main() {
     match result {
         Ok(post_data) => {
             debug!("Post {post_data:?}");
-            if let Some(ref id) = post_data.session_id {
-                client.set_session_id(id.clone());
-                info!("Session id: {id}");
-            }
+            client.set_session_id(post_data.session_id);
         }
         Err(e) => {
             error!("Error: {e}");
         }
     }
+    let id = client.get_session_id();
+    info!("Session id: {id:?}");
 }
