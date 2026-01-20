@@ -1,5 +1,6 @@
 use flume::Sender;
 use futures::StreamExt;
+use reqwest::header::{ACCEPT, CONTENT_TYPE};
 use reqwest::{Client, header};
 use std::time::Duration;
 #[derive(Debug)]
@@ -36,6 +37,8 @@ impl McpStreamClient {
         let response = self
             .client
             .post(&self.url)
+            .header(CONTENT_TYPE, "application/json")
+            .header(ACCEPT, "application/json, text/event-stream")
             .body(payload)
             .send()
             .await
