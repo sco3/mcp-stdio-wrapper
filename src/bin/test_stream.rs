@@ -19,7 +19,7 @@ async fn main() {
             debug!("Post {post_data:?}");
             if let Some(ref id) = post_data.session_id {
                 client.set_session_id(id.clone());
-                info!("Session id: {id}")
+                info!("Session id: {id}");
             }
         }
         Err(e) => {
