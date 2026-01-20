@@ -3,7 +3,7 @@ use reqwest::header::{ACCEPT, CONTENT_TYPE};
 use reqwest::{Client, header};
 use std::time::Duration;
 
-pub const INIT: &'static str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"demo","version":"0.0.1"}}}"#;
+pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"demo","version":"0.0.1"}}}"#;
 
 #[derive(Debug)]
 pub struct McpStreamClient {
