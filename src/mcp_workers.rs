@@ -26,7 +26,7 @@ pub fn spawn_workers(
                         }
                     }
                     Err(e) => {
-                        error!("Post failed: {e}")
+                        error!("Post failed: {e}");
                     }
                 }
             }
