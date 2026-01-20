@@ -2,6 +2,7 @@
 name = "mcp_stdio_wrapper"
 version = "0.1.0"
 edition = "2024"
+default-run = "mcp_stdio_wrapper"
 
 [dependencies]
 dotenvy = "0.15.7"

@@ -41,7 +41,11 @@ impl McpStreamClient {
     }
     #[allow(dead_code)]
     /// Opens a stream and pumps raw chunks into the provided flume channel
-    /// # Errors on failed request or server errors
+    /// # Errors
+    ///
+    /// This function will return an error if the `reqwest` client builder fails,
+    /// which can happen if the TLS backend cannot be initialized or if the
+    /// provided default headers are invalid.
     pub async fn stream_post(&self, payload: String) -> Result<String, String> {
         let mut result = String::new();
         let response = self
