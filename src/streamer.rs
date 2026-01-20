@@ -58,18 +58,12 @@ impl McpStreamClient {
             return Err(format!("Server error: {}", response.status()));
         }
 
-        let id = match response.headers().get("mcp-session-id") {
-            Some(val) => match val.to_str() {
-                Ok(s) => Some(s.to_string()),
-                Err(_) => {
-                    error!("Header contains invalid characters");
-                    None
-                }
-            },
-            None => {
-                error!("Mcp-Session-Id not found");
-                None
-            }
+        let id = if let Some(val) = response.headers().get("mcp-session-id") { if let Ok(s) = val.to_str() { Some(s.to_string()) } else {
+            error!("Header contains invalid characters");
+            None
+        } } else {
+            error!("Mcp-Session-Id not found");
+            None
         };
 
         let mut stream = response.bytes_stream();
