@@ -14,7 +14,9 @@ use crate::stdio_reader::spawn_reader;
 //use flume::bounded;
 use crate::mcp_workers::spawn_workers;
 use crate::stdio_writer::spawn_writer;
-use tracing::info;
+use crate::streamer::INIT;
+use mcp_stdio_wrapper::streamer::McpStreamClient;
+use tracing::{debug, info};
 
 #[tokio::main]
 async fn main() {
@@ -23,6 +25,11 @@ async fn main() {
     info!("{config:?}");
 
     info!("Start");
+
+    let mcp_client = McpStreamClient::new(config.mcp_server_url);
+    debug!("Mcp client: {mcp_client:?}");
+    let mcp_out = mcp_client.stream_post(INIT.to_string()).await;
+    debug!("Mcp out: {mcp_out:?}");
 
     // (Reader -> Worker)
     let (reader_tx, reader_rx) = flume::unbounded::<String>();
