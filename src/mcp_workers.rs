@@ -5,7 +5,7 @@ use tracing::{debug, error, info};
 
 pub fn spawn_workers(
     concurrency: usize,
-    mcp_client: Arc<McpStreamClient>,
+    mcp_client: &Arc<McpStreamClient>,
     input_rx: &Receiver<String>,
     output_tx: &Sender<String>,
 ) {

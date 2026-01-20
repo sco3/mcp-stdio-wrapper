@@ -36,7 +36,7 @@ async fn main() {
     let (writer_tx, writer_rx) = flume::unbounded::<String>();
 
     spawn_reader(reader_tx);
-    spawn_workers(config.concurrency, mcp_client, &reader_rx, &writer_tx);
+    spawn_workers(config.concurrency, &mcp_client, &reader_rx, &writer_tx);
     let exit = spawn_writer(writer_rx);
 
     let _ = exit.await;
