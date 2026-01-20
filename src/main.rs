@@ -4,12 +4,15 @@ mod config_from_cli;
 mod config_from_env;
 mod logger;
 mod stdio_reader;
+mod stdio_writer;
 
 use crate::config::Config;
 use crate::logger::init_logger;
 use crate::stdio_reader::spawn_reader;
 //use flume::bounded;
-use tracing::{debug, info};
+use crate::stdio_writer::spawn_writer;
+use tracing::info;
+
 #[tokio::main]
 async fn main() {
     init_logger();
@@ -20,12 +23,6 @@ async fn main() {
     //let (_tx, _rx) = bounded::<String>(config.concurrency);
 
     let stdio_rx = spawn_reader();
-    while let Ok(line) = stdio_rx.recv_async().await {
-        debug!("Received: {}", line);
-
-        if line == "quit" {
-            break;
-        }
-    }
+    spawn_writer(stdio_rx);
     info!("Finish");
 }
