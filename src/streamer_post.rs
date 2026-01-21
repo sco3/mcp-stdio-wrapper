@@ -35,7 +35,7 @@ impl McpStreamClient {
 
             error!("Server returned error {}: {}", status, err_text);
 
-            return Err(format!("Server error {status}: {err_text}").into()); // Using .into() if your return type is Box<dyn Error>
+            return Err(format!("Server error {status}: {err_text}"));
         }
         let id = self.process_session_id(&response).await;
 
