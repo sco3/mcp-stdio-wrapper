@@ -9,6 +9,10 @@ use tracing::error;
 impl McpStreamClient {
     #[allow(unused)]
     /// Initialize the client with standard MCP/SSE headers
+    ///
+    /// # Errors
+    ///
+    /// * invalid auth header
     pub fn try_new(config: Config) -> Result<Self, header::InvalidHeaderValue> {
         let mut headers = header::HeaderMap::new();
         headers.insert(

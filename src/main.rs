@@ -18,7 +18,7 @@ async fn main() {
             main_loop(concurrency, client).await;
         }
         Err(e) => {
-            error!("Error {e}")
+            error!("Error {e}");
         }
     }
     info!("Finish");
