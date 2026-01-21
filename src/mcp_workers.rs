@@ -27,12 +27,11 @@ pub fn spawn_workers(
                             // take only "data: ..."
                             if let Some(clean_json) = sse_line.strip_prefix("data: ") {
                                 let clean_json = clean_json.trim();
-                                if !clean_json.is_empty() {
-                                    if let Err(e) = tx.send_async(clean_json.to_string()).await {
+                                if !clean_json.is_empty()
+                                    && let Err(e) = tx.send_async(clean_json.to_string()).await {
                                         error!("Worker {i}: failed to send to writer: {e}");
                                         break;
                                     }
-                                }
                             }
                         }
                     }
