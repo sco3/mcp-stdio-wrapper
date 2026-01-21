@@ -1,9 +1,14 @@
 use crate::config::Config;
-/// implements config init
+
 impl Config {
-    /// loads config from env vars
+    /// Loads the configuration from environment variables.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if:
+    /// * Required environment variables are missing
+    /// * The values cannot be parsed
     #[allow(dead_code)]
-    #[must_use]
     pub fn from_env() -> Result<Self, envy::Error> {
         dotenvy::dotenv().ok();
         envy::from_env()

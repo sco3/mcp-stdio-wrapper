@@ -44,4 +44,5 @@ pub fn spawn_workers(
             info!("Worker {} shutting down", i);
         });
     }
+    drop(output_tx);
 }
