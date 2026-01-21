@@ -4,14 +4,8 @@ impl Config {
     /// loads config from env vars
     #[allow(dead_code)]
     #[must_use]
-    pub fn from_env() -> Self {
+    pub fn from_env() -> Result<Self, envy::Error> {
         dotenvy::dotenv().ok();
-
-        let config = envy::from_env().unwrap_or_else(|e| {
-            eprintln!("Config error: {e}");
-            std::process::exit(1);
-        });
-
-        config
+        envy::from_env()
     }
 }
