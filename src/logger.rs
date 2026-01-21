@@ -8,7 +8,7 @@ pub fn init_logger(log_level: Option<&str>) {
     let def_level = default_mcp_wrapper_log_level();
     let log_level = log_level.unwrap_or(&def_level);
 
-    if log_level == "none" {
+    if log_level == "off" {
         return;
     }
 
