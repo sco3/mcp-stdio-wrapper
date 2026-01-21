@@ -42,3 +42,37 @@ graph TD
     G -- "uses" --> I
     G -- "uses" --> J
 ```
+
+## Logic Diagram
+
+Here is a diagram showing the logic of the utility:
+
+```mermaid
+graph TD
+    subgraph "Input"
+        A[stdin] --> B(stdio_reader);
+    end
+    subgraph "Processing Pipeline"
+        B --> C{Input Channel};
+        C --> D1(Worker 1);
+        C --> D2(Worker 2);
+        C --> D3(...);
+        C --> Dn(Worker N);
+        D1 --> E{MCP Server};
+        D2 --> E;
+        D3 --> E;
+        Dn --> E;
+        E --> F1(Worker 1);
+        E --> F2(Worker 2);
+        E --> F3(...);
+        E --> Fn(Worker N);
+        F1 --> G{Output Channel};
+        F2 --> G;
+        F3 --> G;
+        Fn --> G;
+    end
+    subgraph "Output"
+        G --> H(stdio_writer);
+        H --> I[stdout];
+    end
+```
