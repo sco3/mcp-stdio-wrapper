@@ -1,25 +1,12 @@
-mod config;
-mod config_defaults;
-mod config_from_cli;
-mod config_from_env;
-mod logger;
-mod mcp_workers;
-mod post_result;
-mod stdio_reader;
-mod stdio_writer;
-mod streamer;
-mod streamer_id;
-mod streamer_new;
-mod streamer_post;
 
-use crate::config::Config;
-use crate::logger::init_logger;
-use crate::mcp_workers::spawn_workers;
-use crate::stdio_reader::spawn_reader;
-use crate::stdio_writer::spawn_writer;
+use mcp_stdio_wrapper::config::Config;
+use mcp_stdio_wrapper::logger::init_logger;
+use mcp_stdio_wrapper::mcp_workers::spawn_workers;
+use mcp_stdio_wrapper::stdio_reader::spawn_reader;
+use mcp_stdio_wrapper::stdio_writer::spawn_writer;
 use std::sync::Arc;
 
-use streamer::McpStreamClient;
+use mcp_stdio_wrapper::streamer::McpStreamClient;
 use tracing::{debug, info};
 
 #[tokio::main]
