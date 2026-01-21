@@ -11,11 +11,12 @@ pub fn spawn_writer(rx: Receiver<String>) -> tokio::task::JoinHandle<()> {
                 error!("Failed to write to stdout: {}", e);
                 break;
             }
-            if !message.ends_with('\n') //TODO dz check this
-                && let Err(e) = stdout.write_all(b"\n").await
-            {
-                error!("Failed to write newline to stdout: {}", e);
-                break;
+            if !message.ends_with('\n') {
+                //TODO dz check this
+                if let Err(e) = stdout.write_all(b"\n").await {
+                    error!("Failed to write newline to stdout: {}", e);
+                    break;
+                }
             }
             if let Err(e) = stdout.flush().await {
                 error!("Failed to flush stdout: {}", e);
