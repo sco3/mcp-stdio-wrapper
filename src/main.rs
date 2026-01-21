@@ -1,9 +1,5 @@
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::logger::init_logger;
-use mcp_stdio_wrapper::mcp_workers::spawn_workers;
-use mcp_stdio_wrapper::stdio_reader::spawn_reader;
-use mcp_stdio_wrapper::stdio_writer::spawn_writer;
-use std::sync::Arc;
 
 use mcp_stdio_wrapper::main_loop::main_loop;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
