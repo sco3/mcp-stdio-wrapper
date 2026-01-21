@@ -12,4 +12,5 @@ pub mod streamer;
 pub(crate) mod streamer_id;
 pub(crate) mod streamer_new;
 pub(crate) mod streamer_post;
+pub(crate) mod streamer_send;
 pub(crate) mod streamer_session;
