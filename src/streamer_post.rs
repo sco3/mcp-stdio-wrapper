@@ -1,6 +1,7 @@
 use crate::post_result::PostResult;
 use crate::streamer::{McpStreamClient, SID};
 use futures::StreamExt;
+use reqwest::Response;
 use tracing::error;
 
 impl McpStreamClient {
@@ -28,18 +29,7 @@ impl McpStreamClient {
             return Err(format!("Server error: {}", response.status()));
         }
 
-        let id = if let Some(val) = response.headers().get(SID) {
-            if let Ok(s) = val.to_str() {
-                self.set_session_id(Some(s.to_string())).await;
-                Some(s.to_string())
-            } else {
-                error!("Header contains invalid characters");
-                None
-            }
-        } else {
-            error!("Session id not found");
-            None
-        };
+        let id = self.process_session_id(&response).await;
 
         let mut stream = response.bytes_stream();
 
@@ -58,4 +48,6 @@ impl McpStreamClient {
             session_id: id,
         })
     }
+
+
 }
