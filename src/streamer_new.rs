@@ -8,7 +8,7 @@ use tracing::error;
 
 impl McpStreamClient {
     #[allow(unused)]
-    /// Initialize the client with standard MCP/SSE headers
+    /// Initialize the client with standard MCP headers
     ///
     /// # Errors
     ///
@@ -28,10 +28,10 @@ impl McpStreamClient {
             let auth_header = header::HeaderValue::from_str(&config.mcp_auth)?;
             headers.insert(AUTHORIZATION, auth_header);
         }
-
+        let timeout = config.mcp_tool_call_timeout;
         let client = Client::builder()
             .default_headers(headers)
-            .tcp_keepalive(Duration::from_secs(60))
+            .timeout(Duration::from_secs(timeout))
             .build()
             .unwrap_or_else(|error| {
                 // Log to standard error (standard for CLI tools)
