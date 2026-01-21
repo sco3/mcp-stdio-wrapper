@@ -1,3 +1,5 @@
+use clap::Parser;
+use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
 use tracing::{debug, error};
@@ -8,8 +10,9 @@ pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params"
 #[tokio::main]
 async fn main() {
     init_logger(None);
+    let config = Config::parse_from(["--url", URL]);
 
-    let client = McpStreamClient::new(URL.to_owned());
+    let client = McpStreamClient::new(config);
 
     debug!("Start {client:?}");
 

@@ -6,7 +6,8 @@ impl McpStreamClient {
         &self, //
         payload: String,
     ) -> Result<Response, String> {
-        let mut request = self.client.post(&self.url).body(payload);
+        let url = &self.config.mcp_server_url;
+        let mut request = self.client.post(url).body(payload);
 
         let sid = self.get_session_id().await;
         if let Some(sid) = sid {
