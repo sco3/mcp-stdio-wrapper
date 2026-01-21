@@ -16,7 +16,6 @@ impl McpStreamClient {
         let mut request = self
             .client
             .post(&self.url)
-            .header(CONTENT_TYPE, "application/json")
             .body(payload);
 
         let sid = self.get_session_id().await;
@@ -42,7 +41,7 @@ impl McpStreamClient {
                 None
             }
         } else {
-            error!("Mcp-Session-Id not found");
+            error!("Session id not found");
             None
         };
 
