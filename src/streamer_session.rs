@@ -14,7 +14,9 @@ impl McpStreamClient {
                 None
             }
         } else {
-            error!("Session id not found");
+            if !self.is_ready().await {
+                error!("Session id not found");
+            }
             None
         }
     }
