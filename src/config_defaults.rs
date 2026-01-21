@@ -6,5 +6,5 @@ pub(crate) fn default_mcp_server_url() -> String {
 }
 
 pub(crate) fn default_mcp_wrapper_log_level() -> String {
-    "info".to_string()
+    "none".to_string()
 }
