@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::streamer::McpStreamClient;
 use reqwest::header::{ACCEPT, CONTENT_TYPE};
 use reqwest::{header, Client};
@@ -8,7 +9,7 @@ use tracing::error;
 impl McpStreamClient {
     #[allow(unused)]
     /// Initialize the client with standard MCP/SSE headers
-    pub fn new(url: String) -> Self {
+    pub fn new(config: Config) -> Self {
         let mut headers = header::HeaderMap::new();
         headers.insert(
             ACCEPT,
@@ -32,8 +33,8 @@ impl McpStreamClient {
 
         Self {
             client,
-            url,
             session_id: RwLock::new(None),
+            config,
         }
     }
 }

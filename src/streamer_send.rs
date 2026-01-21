@@ -1,0 +1,23 @@
+use crate::streamer::{McpStreamClient, SID};
+use reqwest::Response;
+impl McpStreamClient {
+    /// prepare and send request
+    pub(crate) async fn prepare_and_send_request(
+        &self, //
+        payload: String,
+    ) -> Result<Response, String> {
+        let url = &self.config.mcp_server_url;
+        let mut request = self.client.post(url).body(payload);
+
+        let sid = self.get_session_id().await;
+        if let Some(sid) = sid {
+            request = request.header(SID, sid);
+        }
+
+        let response = request
+            .send()
+            .await
+            .map_err(|e| format!("Request failed: {e}"))?;
+        Ok(response)
+    }
+}

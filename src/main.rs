@@ -15,8 +15,8 @@ async fn main() {
     info!("{config:?}");
 
     info!("Start");
-
-    let mcp_client = Arc::new(McpStreamClient::new(config.mcp_server_url));
+    let concurrency = config.concurrency;
+    let mcp_client = Arc::new(McpStreamClient::new(config));
     debug!("Mcp client: {mcp_client:?}");
 
     // (Reader -> Worker)
@@ -27,7 +27,7 @@ async fn main() {
     spawn_reader(reader_tx);
 
     // create several workers (limit with concurrenty parameter)
-    spawn_workers(config.concurrency, &mcp_client, &reader_rx, writer_tx);
+    spawn_workers(concurrency, &mcp_client, &reader_rx, writer_tx);
 
     let exit = spawn_writer(writer_rx);
 

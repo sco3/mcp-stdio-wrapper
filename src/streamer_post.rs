@@ -1,5 +1,5 @@
 use crate::post_result::PostResult;
-use crate::streamer::{McpStreamClient, SID};
+use crate::streamer::McpStreamClient;
 use futures::StreamExt;
 use tracing::error;
 
@@ -12,17 +12,7 @@ impl McpStreamClient {
     pub async fn stream_post(&self, payload: String) -> Result<PostResult, String> {
         let mut result = String::new();
 
-        let mut request = self.client.post(&self.url).body(payload);
-
-        let sid = self.get_session_id().await;
-        if let Some(sid) = sid {
-            request = request.header(SID, sid);
-        }
-
-        let response = request
-            .send()
-            .await
-            .map_err(|e| format!("Request failed: {e}"))?;
+        let response = self.prepare_and_send_request(payload).await?;
 
         let status = response.status();
 
