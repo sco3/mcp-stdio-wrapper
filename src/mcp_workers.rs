@@ -20,13 +20,24 @@ pub fn spawn_workers(
                 debug!("Worker {i} processing message: {line}");
                 let response = client.stream_post(line).await;
                 match response {
-                    Ok(response) => {
-                        if tx.send_async(response.out).await.is_err() {
-                            break;
+                    Ok(res) => {
+                        // check every line
+                        for sse_line in res.out.lines() {
+                            let sse_line = sse_line.trim();
+                            // take only "data: ..."
+                            if let Some(clean_json) = sse_line.strip_prefix("data: ") {
+                                let clean_json = clean_json.trim();
+                                if !clean_json.is_empty() {
+                                    if let Err(e) = tx.send_async(clean_json.to_string()).await {
+                                        error!("Worker {i}: failed to send to writer: {e}");
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                     Err(e) => {
-                        error!("Post failed: {e}");
+                        error!("Worker {i}: Post failed: {e}");
                     }
                 }
             }
