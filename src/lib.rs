@@ -3,6 +3,7 @@ pub(crate) mod config_defaults;
 pub(crate) mod config_from_cli;
 pub(crate) mod config_from_env;
 pub mod logger;
+pub mod main_loop;
 pub mod mcp_workers;
 pub(crate) mod post_result;
 pub(crate) mod stdio_process;

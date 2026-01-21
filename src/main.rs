@@ -5,33 +5,25 @@ use mcp_stdio_wrapper::stdio_reader::spawn_reader;
 use mcp_stdio_wrapper::stdio_writer::spawn_writer;
 use std::sync::Arc;
 
+use mcp_stdio_wrapper::main_loop::main_loop;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 
 #[tokio::main]
 async fn main() {
     let config = Config::from_cli();
     init_logger(Some(&config.mcp_wrapper_log_level));
-    info!("{config:?}");
+    debug!("{config:?}");
 
     info!("Start");
     let concurrency = config.concurrency;
-    let mcp_client = Arc::new(McpStreamClient::new(config));
-    debug!("Mcp client: {mcp_client:?}");
-
-    // (Reader -> Worker)
-    let (reader_tx, reader_rx) = flume::unbounded::<String>();
-    // (Worker -> Writer)
-    let (writer_tx, writer_rx) = flume::unbounded::<String>();
-
-    spawn_reader(reader_tx);
-
-    // create several workers (limit with concurrenty parameter)
-    spawn_workers(concurrency, &mcp_client, &reader_rx, writer_tx);
-
-    let exit = spawn_writer(writer_rx);
-
-    let _ = exit.await;
-
+    match McpStreamClient::try_new(config) {
+        Ok(client) => {
+            main_loop(concurrency, client).await;
+        }
+        Err(e) => {
+            error!("Error {e}")
+        }
+    }
     info!("Finish");
 }
