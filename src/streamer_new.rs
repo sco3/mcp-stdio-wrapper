@@ -2,6 +2,7 @@ use crate::streamer::McpStreamClient;
 use reqwest::header::{ACCEPT, CONTENT_TYPE};
 use reqwest::{header, Client};
 use std::time::Duration;
+use tokio::sync::RwLock;
 use tracing::error;
 
 impl McpStreamClient {
@@ -32,7 +33,7 @@ impl McpStreamClient {
         Self {
             client,
             url,
-            session_id: None,
+            session_id: RwLock::new(None),
         }
     }
 }

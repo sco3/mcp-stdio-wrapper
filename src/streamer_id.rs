@@ -3,15 +3,25 @@ use crate::streamer::McpStreamClient;
 impl McpStreamClient {
     #[allow(dead_code)]
     /// sets received session id
-    pub fn set_session_id(&mut self, id: Option<String>) {
-        if self.session_id.is_none() && id.is_some() {
-            self.session_id = id;
+    pub async fn set_session_id(&self, id: Option<String>) {
+        {
+            let read_guard = self.session_id.read().await;
+            if read_guard.is_some() || id.is_none() {
+                return;
+            }
+        }
+
+        let mut write_guard = self.session_id.write().await;
+
+        if write_guard.is_none() {
+            *write_guard = id;
         }
     }
     #[allow(dead_code)]
     ///  session id
     #[must_use]
-    pub fn get_session_id(&self) -> Option<&String> {
-        self.session_id.as_ref()
+    pub async fn get_session_id(&self) -> Option<String> {
+        let read_guard = self.session_id.read().await;
+        read_guard.clone()
     }
 }

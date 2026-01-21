@@ -1,8 +1,8 @@
+use crate::post_result::PostResult;
+use crate::streamer::{McpStreamClient, SID};
+use futures::StreamExt;
 use reqwest::header::CONTENT_TYPE;
 use tracing::error;
-use futures::StreamExt;
-use crate::post_result::PostResult;
-use crate::streamer::McpStreamClient;
 
 impl McpStreamClient {
     #[allow(dead_code)]
@@ -12,11 +12,19 @@ impl McpStreamClient {
     /// This function will return an error if the `reqwest` fails
     pub async fn stream_post(&self, payload: String) -> Result<PostResult, String> {
         let mut result = String::new();
-        let response = self
+
+        let mut request = self
             .client
             .post(&self.url)
             .header(CONTENT_TYPE, "application/json")
-            .body(payload)
+            .body(payload);
+
+        let sid = self.get_session_id().await;
+        if let Some(sid) = sid {
+            request = request.header(SID, sid);
+        }
+
+        let response = request
             .send()
             .await
             .map_err(|e| format!("Request failed: {e}"))?;
@@ -25,8 +33,9 @@ impl McpStreamClient {
             return Err(format!("Server error: {}", response.status()));
         }
 
-        let id = if let Some(val) = response.headers().get("mcp-session-id") {
+        let id = if let Some(val) = response.headers().get(SID) {
             if let Ok(s) = val.to_str() {
+                self.set_session_id(Some(s.to_string())).await;
                 Some(s.to_string())
             } else {
                 error!("Header contains invalid characters");

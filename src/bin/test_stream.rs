@@ -9,7 +9,7 @@ pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params"
 async fn main() {
     init_logger();
 
-    let mut client = McpStreamClient::new(URL.to_owned());
+    let client = McpStreamClient::new(URL.to_owned());
 
     debug!("Start {client:?}");
 
@@ -17,12 +17,9 @@ async fn main() {
     match result {
         Ok(post_data) => {
             debug!("Post {post_data:?}");
-            client.set_session_id(post_data.session_id);
         }
         Err(e) => {
             error!("Error: {e}");
         }
     }
-    let id = client.get_session_id();
-    info!("Session id: {id:?}");
 }

@@ -21,6 +21,7 @@ pub fn spawn_workers(
                 let response = client.stream_post(line).await;
                 match response {
                     Ok(res) => {
+                        
                         // check every line
                         for sse_line in res.out.lines() {
                             let sse_line = sse_line.trim();
