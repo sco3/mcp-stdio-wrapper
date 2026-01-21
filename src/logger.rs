@@ -1,19 +1,25 @@
 use std::io;
+use tracing::debug;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
-/// initializes logger to debug by default
-pub fn init_logger() {
-    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+/// initializes logger
+pub fn init_logger(log_level: Option<&str>) {
+    let log_level = log_level.unwrap_or("info");
+
+    let filter = EnvFilter::try_from_default_env() //
+        .unwrap_or_else(|_| EnvFilter::new(log_level)); // use config
+
+    let writer = io::stderr;
+    let dest = "stderr";
+
+    let layer = fmt::layer()
+        .with_ansi(false) // b/w
+        .with_writer(writer);
 
     tracing_subscriber::registry()
         .with(filter)
-        .with(
-            // mono out to stderr
-            fmt::layer() //
-                .with_ansi(false)
-                .with_writer(io::stderr),
-        )
+        .with(layer)
         .init();
 
-    tracing::debug!("Logger initialized with DEBUG level on stderr");
+    debug!("Logger initialized with log level: {log_level} to {dest}",);
 }

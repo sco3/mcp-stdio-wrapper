@@ -11,8 +11,9 @@ use tracing::{debug, info};
 
 #[tokio::main]
 async fn main() {
-    init_logger();
+    
     let config = Config::from_cli();
+    init_logger(Some(&config.mcp_wrapper_log_level));
     info!("{config:?}");
 
     info!("Start");
