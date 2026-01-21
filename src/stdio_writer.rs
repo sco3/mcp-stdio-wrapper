@@ -1,7 +1,7 @@
+use crate::stdio_process::process_message;
 use flume::Receiver;
 use tokio::io::{self, BufWriter};
 use tracing::{error, info};
-use crate::stdio_process::process_message;
 
 #[must_use]
 pub fn spawn_writer(rx: Receiver<String>) -> tokio::task::JoinHandle<()> {

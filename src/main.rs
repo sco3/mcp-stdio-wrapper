@@ -28,9 +28,7 @@ async fn main() {
 
     // create several workers (limit with concurrenty parameter)
     spawn_workers(config.concurrency, &mcp_client, &reader_rx, writer_tx);
-    
-    
-    
+
     let exit = spawn_writer(writer_rx);
 
     let _ = exit.await;
