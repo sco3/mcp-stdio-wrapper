@@ -9,5 +9,5 @@ pub(crate) fn default_mcp_tool_call_timeout() -> u64 {
     60
 }
 pub(crate) fn default_mcp_auth() -> String {
-    "".to_string()
+    String::new()
 }
