@@ -3,7 +3,7 @@ use tokio::io::{self, AsyncBufReadExt, BufReader};
 use tracing::debug;
 
 /// stdio reader
-pub(crate) fn spawn_reader(tx: Sender<String>) {
+pub fn spawn_reader(tx: Sender<String>) {
     tokio::spawn(async move {
         let stdin = io::stdin();
         let mut reader = BufReader::new(stdin).lines();
