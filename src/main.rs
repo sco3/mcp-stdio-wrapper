@@ -8,6 +8,9 @@ mod post_result;
 mod stdio_reader;
 mod stdio_writer;
 mod streamer;
+mod streamer_new;
+mod streamer_post;
+mod streamer_id;
 
 use crate::config::Config;
 use crate::logger::init_logger;
