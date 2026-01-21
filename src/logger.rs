@@ -1,5 +1,5 @@
 use std::io;
-use tracing_subscriber::{EnvFilter, fmt, prelude::*};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 /// initializes logger to debug by default
 pub fn init_logger() {
@@ -7,7 +7,12 @@ pub fn init_logger() {
 
     tracing_subscriber::registry()
         .with(filter)
-        .with(fmt::layer().with_writer(io::stderr))
+        .with(
+            // mono out to stderr
+            fmt::layer() //
+                .with_ansi(false)
+                .with_writer(io::stderr),
+        )
         .init();
 
     tracing::debug!("Logger initialized with DEBUG level on stderr");
