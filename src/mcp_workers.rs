@@ -21,18 +21,18 @@ pub fn spawn_workers(
                 let response = client.stream_post(line).await;
                 match response {
                     Ok(res) => {
-                        
                         // check every line
                         for sse_line in res.out.lines() {
                             let sse_line = sse_line.trim();
                             // take only "data: ..."
                             if let Some(clean_json) = sse_line.strip_prefix("data: ") {
                                 let clean_json = clean_json.trim();
-                                if !clean_json.is_empty()
-                                    && let Err(e) = tx.send_async(clean_json.to_string()).await {
+                                if !clean_json.is_empty() {
+                                    if let Err(e) = tx.send_async(clean_json.to_string()).await {
                                         error!("Worker {i}: failed to send to writer: {e}");
                                         break;
                                     }
+                                }
                             }
                         }
                     }

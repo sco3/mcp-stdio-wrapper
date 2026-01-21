@@ -9,17 +9,18 @@ pub fn spawn_writer(rx: Receiver<String>) -> tokio::task::JoinHandle<()> {
             debug!("Write: {}", message);
             if let Err(e) = stdout.write_all(message.as_bytes()).await {
                 error!("Failed to write to stdout: {}", e);
-                break;
+                return;
             }
-            if !message.ends_with('\n') //TODO dz check this
-                && let Err(e) = stdout.write_all(b"\n").await
-            {
-                error!("Failed to write newline to stdout: {}", e);
-                break;
+            if !message.ends_with('\n') {
+                //TODO dz check if new line is obligatory
+                if let Err(e) = stdout.write_all(b"\n").await {
+                    error!("Failed to write newline to stdout: {}", e);
+                    return;
+                }
             }
             if let Err(e) = stdout.flush().await {
                 error!("Failed to flush stdout: {}", e);
-                break;
+                return;
             }
         }
         info!("Writer task shutting down");
