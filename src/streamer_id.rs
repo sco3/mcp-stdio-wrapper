@@ -24,4 +24,10 @@ impl McpStreamClient {
         let read_guard = self.session_id.read().await;
         read_guard.clone()
     }
+
+    /// Returns `true` if the MCP session has been initialized
+    pub async fn is_ready(&self) -> bool {
+        // Acquires a shared read lock
+        self.session_id.read().await.is_some()
+    }
 }
