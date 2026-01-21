@@ -4,7 +4,7 @@ use clap::Parser;
 /// implements config init from cli arguments
 impl Config {
     /// loads config from cli arguments
-    pub fn from_cli() -> Self {
+    #[must_use] pub fn from_cli() -> Self {
         Config::parse()
     }
 }

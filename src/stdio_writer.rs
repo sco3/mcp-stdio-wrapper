@@ -2,7 +2,7 @@ use flume::Receiver;
 use tokio::io::{self, AsyncWriteExt, BufWriter};
 use tracing::{debug, error, info};
 
-pub fn spawn_writer(rx: Receiver<String>) -> tokio::task::JoinHandle<()> {
+#[must_use] pub fn spawn_writer(rx: Receiver<String>) -> tokio::task::JoinHandle<()> {
     tokio::spawn(async move {
         let mut stdout = BufWriter::new(io::stdout());
         while let Ok(message) = rx.recv_async().await {
