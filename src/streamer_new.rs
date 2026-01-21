@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::streamer::McpStreamClient;
-use reqwest::header::{ACCEPT, CONTENT_TYPE};
+use reqwest::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use reqwest::{header, Client};
 use std::time::Duration;
 use tokio::sync::RwLock;
@@ -9,7 +9,11 @@ use tracing::error;
 impl McpStreamClient {
     #[allow(unused)]
     /// Initialize the client with standard MCP/SSE headers
-    pub fn new(config: Config) -> Self {
+    ///
+    /// # Errors
+    ///
+    /// * invalid auth header
+    pub fn try_new(config: Config) -> Result<Self, header::InvalidHeaderValue> {
         let mut headers = header::HeaderMap::new();
         headers.insert(
             ACCEPT,
@@ -19,6 +23,11 @@ impl McpStreamClient {
             CONTENT_TYPE,
             header::HeaderValue::from_static("application/json"),
         );
+
+        if !config.mcp_auth.is_empty() {
+            let auth_header = header::HeaderValue::from_str(&config.mcp_auth)?;
+            headers.insert(AUTHORIZATION, auth_header);
+        }
 
         let client = Client::builder()
             .default_headers(headers)
@@ -31,10 +40,10 @@ impl McpStreamClient {
                 std::process::exit(1);
             });
 
-        Self {
+        Ok(Self {
             client,
             session_id: RwLock::new(None),
             config,
-        }
+        })
     }
 }

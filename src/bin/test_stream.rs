@@ -12,16 +12,21 @@ async fn main() {
     init_logger(None);
     let config = Config::parse_from(["--url", URL]);
 
-    let client = McpStreamClient::new(config);
+    match McpStreamClient::try_new(config) {
+        Ok(client) => {
+            debug!("Start {client:?}");
 
-    debug!("Start {client:?}");
-
-    let result = client.stream_post(INIT.to_string()).await;
-    match result {
-        Ok(post_data) => {
-            debug!("Post {post_data:?}");
+            let result = client.stream_post(INIT.to_string()).await;
+            match result {
+                Ok(post_data) => {
+                    debug!("Post {post_data:?}");
+                }
+                Err(e) => {
+                    error!("Error: {e}");
+                }
+            }
         }
-        Err(e) => {
+        Err(e)=>{
             error!("Error: {e}");
         }
     }
