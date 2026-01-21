@@ -1,6 +1,5 @@
-use flume::Receiver;
 use tokio::io::{self, AsyncWriteExt, BufWriter, Stdout};
-use tracing::{debug, error, info};
+use tracing::debug;
 
 /// process a single message
 pub async fn process_message(stdout: &mut BufWriter<Stdout>, message: &str) -> io::Result<()> {

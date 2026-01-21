@@ -1,6 +1,6 @@
 use flume::Receiver;
-use tokio::io::{self, AsyncWriteExt, BufWriter, Stdout};
-use tracing::{debug, error, info};
+use tokio::io::{self, BufWriter};
+use tracing::{error, info};
 use crate::stdio_process::process_message;
 
 #[must_use]

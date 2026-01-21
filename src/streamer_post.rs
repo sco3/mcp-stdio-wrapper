@@ -1,7 +1,6 @@
 use crate::post_result::PostResult;
 use crate::streamer::{McpStreamClient, SID};
 use futures::StreamExt;
-use reqwest::Response;
 use tracing::error;
 
 impl McpStreamClient {
@@ -25,10 +24,19 @@ impl McpStreamClient {
             .await
             .map_err(|e| format!("Request failed: {e}"))?;
 
-        if !response.status().is_success() {
-            return Err(format!("Server error: {}", response.status()));
-        }
+        let status = response.status();
 
+        if !status.is_success() {
+            // Attempt to get the error message from the server body
+            let err_text = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Could not read error body".to_string());
+
+            error!("Server returned error {}: {}", status, err_text);
+
+            return Err(format!("Server error {status}: {err_text}").into()); // Using .into() if your return type is Box<dyn Error>
+        }
         let id = self.process_session_id(&response).await;
 
         let mut stream = response.bytes_stream();
@@ -48,6 +56,4 @@ impl McpStreamClient {
             session_id: id,
         })
     }
-
-
 }
