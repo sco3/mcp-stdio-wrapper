@@ -24,22 +24,20 @@ impl McpStreamClient {
             .await
             .map_err(|e| format!("Request failed: {e}"))?;
 
-        if !response.status().is_success() {
-            return Err(format!("Server error: {}", response.status()));
-        }
+        let status = response.status();
 
-        let id = if let Some(val) = response.headers().get(SID) {
-            if let Ok(s) = val.to_str() {
-                self.set_session_id(Some(s.to_string())).await;
-                Some(s.to_string())
-            } else {
-                error!("Header contains invalid characters");
-                None
-            }
-        } else {
-            error!("Session id not found");
-            None
-        };
+        if !status.is_success() {
+            // Attempt to get the error message from the server body
+            let err_text = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Could not read error body".to_string());
+
+            error!("Server returned error {}: {}", status, err_text);
+
+            return Err(format!("Server error {status}: {err_text}"));
+        }
+        let id = self.process_session_id(&response).await;
 
         let mut stream = response.bytes_stream();
 

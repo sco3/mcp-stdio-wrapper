@@ -3,8 +3,9 @@ use crate::config::Config;
 impl Config {
     /// loads config from env vars
     #[allow(dead_code)]
-    pub fn from_env() -> Self {
+    #[must_use]
+    pub fn from_env() -> Result<Self, envy::Error> {
         dotenvy::dotenv().ok();
-        envy::from_env().expect("Failed to load config.")
+        envy::from_env()
     }
 }

@@ -7,7 +7,7 @@ pub fn spawn_workers(
     concurrency: usize,
     mcp_client: &Arc<McpStreamClient>,
     input_rx: &Receiver<String>,
-    output_tx: &Sender<String>,
+    output_tx: Sender<String>,
 ) {
     for i in 0..concurrency {
         let rx = input_rx.clone();

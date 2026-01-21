@@ -1,26 +1,16 @@
+use crate::stdio_process::process_message;
 use flume::Receiver;
-use tokio::io::{self, AsyncWriteExt, BufWriter};
-use tracing::{debug, error, info};
+use tokio::io::{self, BufWriter};
+use tracing::{error, info};
 
+#[must_use]
 pub fn spawn_writer(rx: Receiver<String>) -> tokio::task::JoinHandle<()> {
     tokio::spawn(async move {
         let mut stdout = BufWriter::new(io::stdout());
         while let Ok(message) = rx.recv_async().await {
-            debug!("Write: {}", message);
-            if let Err(e) = stdout.write_all(message.as_bytes()).await {
-                error!("Failed to write to stdout: {}", e);
-                return;
-            }
-            if !message.ends_with('\n') {
-                //TODO dz check if new line is obligatory
-                if let Err(e) = stdout.write_all(b"\n").await {
-                    error!("Failed to write newline to stdout: {}", e);
-                    return;
-                }
-            }
-            if let Err(e) = stdout.flush().await {
-                error!("Failed to flush stdout: {}", e);
-                return;
+            if let Err(e) = process_message(&mut stdout, &message).await {
+                error!("Failed to process message in writer: {}", e);
+                break;
             }
         }
         info!("Writer task shutting down");
