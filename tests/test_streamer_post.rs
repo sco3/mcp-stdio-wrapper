@@ -12,8 +12,12 @@ data: {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabili
 "#;
 const NOTIFY: &str = r#"{"jsonrpc":"2.0","method": "notifications/initialized"}"#;
 
+/// # Panics
+/// * test fails
+/// # Errors
+/// * test setup fails
 #[tokio::test]
-pub async fn test_streamer_post() {
+pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = Server::new_async().await;
     let url = server.url();
 
@@ -44,19 +48,15 @@ pub async fn test_streamer_post() {
         mcp_tool_call_timeout: default_mcp_tool_call_timeout(),
     };
 
-    let cli = McpStreamClient::try_new(config);
-    assert!(cli.is_ok());
+    let cli = McpStreamClient::try_new(config)?;
 
-    if let Ok(cli) = cli {
-        let out = cli.stream_post(INIT.to_string()).await;
-        mock_init.assert_async().await;
-        println!("{out:?}");
+    let out = cli.stream_post(INIT.to_string()).await;
+    mock_init.assert_async().await;
+    println!("{out:?}");
 
-        let out = cli.stream_post(NOTIFY.to_string()).await;
-        mock_notify.assert_async().await;
+    let out = cli.stream_post(NOTIFY.to_string()).await;
+    mock_notify.assert_async().await;
 
-        println!("{out:?}");
-    } else {
-        assert!(false);
-    }
+    println!("{out:?}");
+    Ok(())
 }
