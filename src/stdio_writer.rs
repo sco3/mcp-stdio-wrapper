@@ -1,7 +1,7 @@
 use crate::stdio_process::process_message;
 use flume::Receiver;
 use tokio::io::{BufWriter, AsyncWrite};
-use tracing::error;
+use tracing::{error, info};
 
 
 
