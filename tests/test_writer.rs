@@ -14,7 +14,7 @@ pub async fn test_writer() -> Result<(), Box<dyn std::error::Error>> {
     let out = Builder::new().write(b"test\n").build();
 
     let writer = spawn_writer(rx, out);
-    let _r = tx.send_async("test".to_string()).await?;
+    tx.send_async("test".to_string()).await?;
     drop(tx);
     writer.await?;
     Ok(())
