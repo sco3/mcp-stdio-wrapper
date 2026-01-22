@@ -19,7 +19,7 @@ pub async fn main_loop(concurrency: usize, client: McpStreamClient) {
     // create several workers (limit with concurrenty parameter)
     spawn_workers(concurrency, &mcp_client, &reader_rx, writer_tx);
 
-    let exit = spawn_writer(writer_rx);
+    let exit = spawn_writer(writer_rx, tokio::io::stdout());
 
     let _ = exit.await;
 }
