@@ -33,12 +33,12 @@ pub async fn test_streamer_post() {
         .await;
 
     let mut mcp_auth = default_mcp_auth();
-    if "" == mcp_auth {
+    if mcp_auth.is_empty() {
         mcp_auth = "token".to_string();
     }
     let config = Config {
         mcp_server_url: format!("{url}/mcp/"),
-        mcp_auth: mcp_auth,
+        mcp_auth,
         concurrency: default_concurrency(),
         mcp_wrapper_log_level: default_mcp_wrapper_log_level(),
         mcp_tool_call_timeout: default_mcp_tool_call_timeout(),
