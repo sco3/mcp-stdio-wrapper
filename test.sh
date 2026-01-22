@@ -32,6 +32,6 @@ CALL='{
   sleep 0.1
   echo "$LIST"
   sleep 0.1
-  echo "$(echo $CALL | yq -o json -M -I 0 )"
+  echo "$CALL" | yq -o json -M -I 0
   sleep 0.1
 ) | $EXE
