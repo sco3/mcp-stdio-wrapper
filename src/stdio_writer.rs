@@ -1,12 +1,12 @@
 use crate::stdio_process::process_message;
 use flume::Receiver;
-use tokio::io::{self, BufWriter, AsyncWrite};
-use tracing::{error, info};
+use tokio::io::{BufWriter, AsyncWrite};
+use tracing::error;
 
 
 
 // We make the function generic over W (any AsyncWriter)
-pub fn spawn_writer<W>(rx: Receiver<String>, mut writer: W) -> tokio::task::JoinHandle<()>
+pub fn spawn_writer<W>(rx: Receiver<String>, writer: W) -> tokio::task::JoinHandle<()>
 where
     W: AsyncWrite + Unpin + Send + 'static
 {

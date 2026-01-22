@@ -1,4 +1,4 @@
-use tokio::io::{self, AsyncWrite, AsyncWriteExt, BufWriter, Stdout};
+use tokio::io::{self, AsyncWrite, AsyncWriteExt, BufWriter};
 use tracing::debug;
 
 /// process a single message
