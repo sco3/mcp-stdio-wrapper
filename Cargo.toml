@@ -15,6 +15,7 @@ envy = "0.4.2"
 clap = { version = "4.5.54", features = ["derive"] }
 reqwest = { version = "0.13.1", features = ["json", "stream"] }
 futures = "0.3.31"
+http = "1.4.0"
 
 [dev-dependencies]
 mockito = "1.7.1"
