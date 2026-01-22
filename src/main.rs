@@ -3,6 +3,7 @@ use mcp_stdio_wrapper::logger::init_logger;
 
 use mcp_stdio_wrapper::main_loop::main_loop;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
+use tokio::io::stdout;
 use tracing::{debug, error, info};
 
 #[tokio::main]
@@ -15,7 +16,7 @@ async fn main() {
     let concurrency = config.concurrency;
     match McpStreamClient::try_new(config) {
         Ok(client) => {
-            main_loop(concurrency, client).await;
+            main_loop(concurrency, client, stdout()).await;
         }
         Err(e) => {
             error!("Error {e}");
