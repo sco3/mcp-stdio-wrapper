@@ -7,7 +7,7 @@ use tracing::{debug, error, info};
 
 #[tokio::main]
 async fn main() {
-    let config = Config::from_cli();
+    let config = Config::from_cli(std::env::args());
     init_logger(Some(&config.mcp_wrapper_log_level));
     debug!("{config:?}");
 
