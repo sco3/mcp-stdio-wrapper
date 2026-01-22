@@ -1,6 +1,7 @@
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::stdio_reader::spawn_reader;
 use tokio_test::io::Builder;
+#[tokio::test]
 ///
 /// # Errors
 ///
