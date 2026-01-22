@@ -2,6 +2,8 @@ use tokio::io::{self, AsyncWriteExt, BufWriter, Stdout};
 use tracing::debug;
 
 /// process a single message
+/// # Errors
+/// * error happens on stream close
 pub async fn process_message(stdout: &mut BufWriter<Stdout>, message: &str) -> io::Result<()> {
     debug!("Write: {}", message);
     stdout.write_all(message.as_bytes()).await?;
