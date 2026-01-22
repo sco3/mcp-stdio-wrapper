@@ -854,6 +854,7 @@ dependencies = [
  "envy",
  "flume",
  "futures",
+ "http",
  "mockito",
  "reqwest",
  "serde",
