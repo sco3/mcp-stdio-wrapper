@@ -3,10 +3,12 @@ use mcp_stdio_wrapper::stdio_reader::spawn_reader;
 use tokio_test::io::Builder;
 ///
 /// # Errors
-/// * test fails
+///
+/// Returns an error if reading from the channel fails.
+///
 /// # Panics
-/// * test fails
-#[tokio::test]
+///
+/// Panics if the received line does not match the expected data.#[tokio::test]
 pub async fn test_reader() -> Result<(), Box<dyn std::error::Error>> {
     let data = "test";
     init_logger(Some("debug"));
