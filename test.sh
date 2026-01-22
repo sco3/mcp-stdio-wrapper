@@ -1,13 +1,12 @@
 #!/usr/bin/env -S bash
 
+set -ueo pipefail
 
-#export MCP_LOG_FILE=/tmp/mcp.log 
-#export RUST_LOG=debug
+# export RUST_LOG=debug
 # update exe to required executable
-EXE="mcp_stdio_wrapper"
+EXE="mcp_stdio_wrapper --url ${MCP_URL:-http://localhost:8000/mcp}"
 
-
-#commands
+# commands
 
 INIT='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0"}}}'
 NOTIFY='{"jsonrpc":"2.0","method":"notifications/initialized"}'
@@ -18,14 +17,13 @@ CALL='{
   "id": 3,
   "method": "tools/call",
   "params": {
-    "name": "getSum",
-    "arguments": {
-          "a": 15,
-          "b": 27
-   }}
+    "name": "say_hello",
+    "arguments": {},
+    "_meta": {
+      "progressToken": 0
+    }
+  }
 }'
-
-# echo $CALL | yq -o json -M -I 0
 
 (
   echo "$INIT"
@@ -34,6 +32,6 @@ CALL='{
   sleep 0.1
   echo "$LIST"
   sleep 0.1
-  #echo "$(echo $CALL | yq -o json -M -I 0 )"
-  #sleep 0.1
-) | $EXE 
+  echo "$CALL" | yq -o json -M -I 0
+  sleep 0.1
+) | $EXE
