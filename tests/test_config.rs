@@ -8,6 +8,6 @@ pub async fn test_config() {
         "wrapper", "--url", "url",
     ]
     .into_iter()
-    .map(|s| s.to_string());
+    .map(std::string::ToString::to_string);
     let _config = Config::from_cli(args);
 }
