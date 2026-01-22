@@ -1,5 +1,5 @@
 use flume::Sender;
-use tokio::io::{self, AsyncBufReadExt, AsyncRead, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncRead, BufReader};
 use tracing::debug;
 
 /// stdio reader
