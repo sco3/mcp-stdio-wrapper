@@ -1,14 +1,12 @@
 use crate::stdio_process::process_message;
 use flume::Receiver;
-use tokio::io::{BufWriter, AsyncWrite};
+use tokio::io::{AsyncWrite, BufWriter};
 use tracing::{error, info};
-
-
 
 // We make the function generic over W (any AsyncWriter)
 pub fn spawn_writer<W>(rx: Receiver<String>, writer: W) -> tokio::task::JoinHandle<()>
 where
-    W: AsyncWrite + Unpin + Send + 'static
+    W: AsyncWrite + Unpin + Send + 'static,
 {
     tokio::spawn(async move {
         let mut stdout = BufWriter::new(writer);
@@ -18,5 +16,6 @@ where
                 break;
             }
         }
+        info!("Writer task shutting down");
     })
 }
