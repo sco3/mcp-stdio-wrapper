@@ -4,7 +4,7 @@ set -ueo pipefail
 
 # export RUST_LOG=debug
 # update exe to required executable
-EXE="mcp_stdio_wrapper --url http://localhost:8000/mcp"
+EXE="mcp_stdio_wrapper --url ${MCP_URL:-http://localhost:8000/mcp}"
 
 # commands
 
