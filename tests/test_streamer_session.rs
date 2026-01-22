@@ -2,7 +2,7 @@ use http::Response as HttpResponse;
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::config_defaults::*;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::HeaderValue;
 
 #[tokio::test]
 pub async fn test_streamer_bad_chars() {
