@@ -6,8 +6,9 @@ struct JsonRpcHeader {
 }
 /// parses string for jsonrpc id
 /// # Errors
-/// * id not found in input
-pub fn parse_id(json_str: &str) -> Result<u64, Box<dyn std::error::Error>> {
+///
+/// Returns an error if the string is not valid JSON, or if the `id` field is missing or not a `u64`.
+pub fn parse_id(json_str: &str) -> Result<u64, serde_json::Error> {
     let header: JsonRpcHeader = serde_json::from_str(json_str)?;
     Ok(header.id)
 }
