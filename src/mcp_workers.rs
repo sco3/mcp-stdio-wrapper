@@ -1,4 +1,5 @@
 use crate::streamer::McpStreamClient;
+use crate::streamer_error::mcp_error;
 use flume::{Receiver, Sender};
 use std::sync::Arc;
 use tracing::{debug, error, info};
@@ -38,6 +39,7 @@ pub fn spawn_workers(
                     }
                     Err(e) => {
                         error!("Worker {i}: Post failed: {e}");
+                        //mcp_error(&i, &line, &e, &tx).await;
                     }
                 }
             }
