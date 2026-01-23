@@ -1,5 +1,6 @@
 use crate::streamer::{McpStreamClient, SID};
 use reqwest::Response;
+
 impl McpStreamClient {
     /// prepare and send request
     pub(crate) async fn prepare_and_send_request(
