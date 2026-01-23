@@ -19,7 +19,7 @@ pub struct Config {
 
     /// Logging level, or "off" to disable
     #[serde(default = "crate::config_defaults::default_mcp_wrapper_log_level")]
-    #[arg(long, default_value_t = crate::config_defaults::default_mcp_wrapper_log_level())]
+    #[arg(long="log-level", default_value_t = crate::config_defaults::default_mcp_wrapper_log_level())]
     pub mcp_wrapper_log_level: String,
 
     /// Response timeout in seconds
