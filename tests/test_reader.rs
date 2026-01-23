@@ -9,14 +9,14 @@ use tokio_test::io::Builder;
 ///
 /// # Panics
 ///
-/// Panics if the received line does not match the expected data.#[tokio::test]
+/// Panics if the received line does not match the expected data.#[`tokio::test`]
 pub async fn test_reader() -> Result<(), Box<dyn std::error::Error>> {
     let data = "test";
     init_logger(Some("debug"));
     let (tx, rx) = flume::unbounded::<String>();
 
     let stdio = Builder::new().read(data.as_bytes()).build();
-    let _reader = spawn_reader(tx, stdio);
+    spawn_reader(tx, stdio);
 
     let line = rx.recv_async().await?;
     assert_eq!(line, data);
