@@ -9,7 +9,7 @@ use tokio_test::io::Builder;
 ///
 /// # Panics
 ///
-/// Panics if the received line does not match the expected data.#[`tokio::test`]
+/// Panics if the received line does not match the expected data.
 pub async fn test_reader() -> Result<(), Box<dyn std::error::Error>> {
     let data = "test";
     init_logger(Some("debug"));
