@@ -27,7 +27,8 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
         .create_async()
         .await;
 
-    let config = Config::from_cli(["test".to_string(), "--url".to_string(), server.url()]);
+    let url = server.url();
+    let config = Config::from_cli(["test", "--url", &url]);
 
     let client = McpStreamClient::try_new(config)?;
     let (tx_in, rx_in) = flume::unbounded();
