@@ -9,7 +9,7 @@ impl McpStreamClient {
     /// # Errors
     ///
     /// This function will return an error if the `reqwest` fails
-    pub async fn stream_post(&self, payload: String) -> Result<PostResult, String> {
+    pub async fn stream_post(&self, payload: &str) -> Result<PostResult, String> {
         let mut result = String::new();
 
         let response = self.prepare_and_send_request(payload).await?;

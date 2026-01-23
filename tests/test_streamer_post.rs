@@ -50,11 +50,11 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
 
     let cli = McpStreamClient::try_new(config)?;
 
-    let out = cli.stream_post(INIT.to_string()).await;
+    let out = cli.stream_post(INIT).await;
     mock_init.assert_async().await;
     println!("{out:?}");
 
-    let out = cli.stream_post(NOTIFY.to_string()).await;
+    let out = cli.stream_post(NOTIFY).await;
     mock_notify.assert_async().await;
 
     println!("{out:?}");

@@ -16,7 +16,7 @@ async fn main() {
         Ok(client) => {
             debug!("Start {client:?}");
 
-            let result = client.stream_post(INIT.to_string()).await;
+            let result = client.stream_post(INIT).await;
             match result {
                 Ok(post_data) => {
                     debug!("Post {post_data:?}");
@@ -26,7 +26,7 @@ async fn main() {
                 }
             }
         }
-        Err(e)=>{
+        Err(e) => {
             error!("Error: {e}");
         }
     }
