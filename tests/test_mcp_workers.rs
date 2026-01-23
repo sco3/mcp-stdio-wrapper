@@ -5,23 +5,25 @@ use mcp_stdio_wrapper::mcp_workers::*;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
 use mockito::Server;
 use std::sync::Arc;
-use std::time::Duration;
-use tokio::time::sleep;
 
+/// Tests that `spawn_workers` correctly processes a message by sending it to a mock server
+/// and forwarding the response.
 /// # Errors
-/// may happen on test failure
+/// Returns an error if channel operations fail or if the test times out.
 /// # Panics
-/// may happen on test failure
+/// Panics if an assertion fails.
 #[tokio::test]
 pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
     init_logger(Some("debug"));
     let mut server = Server::new_async().await;
 
+    let expected = "ok";
+
     let mock_init = server
         .mock("POST", "/")
         .with_status(200)
         .with_header("mcp-session-id", "session-42")
-        .with_body(r#"data: {"init":"ok"}"#)
+        .with_body(format!("data: {expected}"))
         .create_async()
         .await;
 
@@ -35,18 +37,14 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
 
     let client = McpStreamClient::try_new(config)?;
     let (tx_in, rx_in) = flume::unbounded();
-    let (tx_out, _rx_out) = flume::unbounded();
+    let (tx_out, rx_out) = flume::unbounded();
 
-    spawn_workers(
-        //
-        2,
-        &Arc::new(client),
-        &rx_in,
-        tx_out,
-    );
-    tx_in.send_async(String::from(r#"{"id":1}"#)).await?;
+    spawn_workers(2, &Arc::new(client), &rx_in, tx_out);
+    tx_in.send_async(String::from("init")).await?;
 
-    sleep(Duration::from_millis(100)).await;
+    let out = rx_out.recv_async().await?;
+
+    assert_eq!(expected, out);
     mock_init.assert_async().await;
 
     Ok(())
