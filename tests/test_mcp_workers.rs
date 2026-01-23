@@ -27,19 +27,13 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
         .create_async()
         .await;
 
-    let config = Config {
-        mcp_server_url: server.url(),
-        mcp_auth: default_mcp_auth(),
-        concurrency: default_concurrency(),
-        mcp_wrapper_log_level: default_mcp_wrapper_log_level(),
-        mcp_tool_call_timeout: default_mcp_tool_call_timeout(),
-    };
+    let config = Config::from_cli(["test".to_string(), "--url".to_string(), server.url()]);
 
     let client = McpStreamClient::try_new(config)?;
     let (tx_in, rx_in) = flume::unbounded();
     let (tx_out, rx_out) = flume::unbounded();
 
-    spawn_workers(2, &Arc::new(client), &rx_in, tx_out);
+    spawn_workers(default_concurrency(), &Arc::new(client), &rx_in, tx_out);
     tx_in.send_async(String::from("init")).await?;
 
     let out = rx_out.recv_async().await?;

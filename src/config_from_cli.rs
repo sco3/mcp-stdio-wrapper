@@ -1,3 +1,4 @@
+use std::ffi::OsString;
 use crate::config::Config;
 use clap::Parser;
 
@@ -5,10 +6,12 @@ use clap::Parser;
 impl Config {
     /// loads config from cli arguments
     #[must_use]
-    pub fn from_cli<I>(args: I) -> Self
+    pub fn from_cli<I, T>(args: I) -> Self
     where
-        I: IntoIterator<Item = String>,
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
     {
+        // clap's parse_from expects Iterator<Item = T> where T: Into<OsString>
         Config::parse_from(args)
     }
 }

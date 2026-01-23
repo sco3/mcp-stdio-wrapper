@@ -1,10 +1,12 @@
 use crate::config_defaults::default_mcp_wrapper_log_level;
 use std::io;
+use std::sync::Once;
 use tracing::debug;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
-/// initializes logger
-pub fn init_logger(log_level: Option<&str>) {
+static INIT: Once = Once::new();
+
+fn init_logger_once(log_level: Option<&str>) {
     let def_level = default_mcp_wrapper_log_level();
     let log_level = log_level.unwrap_or(&def_level);
 
@@ -28,4 +30,11 @@ pub fn init_logger(log_level: Option<&str>) {
         .init();
 
     debug!("Logger initialized with log level: {log_level} to {dest}",);
+}
+
+/// initializes logger
+pub fn init_logger(log_level: Option<&str>) {
+    INIT.call_once(|| {
+        init_logger_once(log_level);
+    });
 }
