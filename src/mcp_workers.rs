@@ -39,7 +39,7 @@ pub fn spawn_workers(
                     }
                     Err(e) => {
                         error!("Worker {i}: Post failed: {e}");
-                        //mcp_error(&i, &line, &e, &tx).await;
+                        mcp_error(&i, &line, &e);
                     }
                 }
             }
