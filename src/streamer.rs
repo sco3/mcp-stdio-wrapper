@@ -1,6 +1,6 @@
+use crate::config::Config;
 use reqwest::Client;
 use tokio::sync::RwLock;
-use crate::config::Config;
 
 pub const SID: &str = "mcp-session-id";
 
@@ -8,5 +8,5 @@ pub const SID: &str = "mcp-session-id";
 pub struct McpStreamClient {
     pub(crate) client: Client,
     pub(crate) session_id: RwLock<Option<String>>,
-    pub(crate) config:Config,
+    pub(crate) config: Config,
 }

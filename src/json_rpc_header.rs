@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use serde_json::Value;
-use struson::reader::{JsonStreamReader, JsonReader};
+use struson::reader::{JsonReader, JsonStreamReader};
 
 #[derive(Deserialize, Debug)]
 struct JsonRpcHeader {
@@ -15,7 +15,7 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
     Ok(header.id)
 }
 
-#[must_use] 
+#[must_use]
 pub fn find_first_id(json: &str) -> Option<Value> {
     let mut reader = JsonStreamReader::new(json.as_bytes());
 

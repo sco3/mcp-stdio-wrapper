@@ -3,11 +3,13 @@ use tracing::error;
 
 pub fn mcp_error(worker_id: &usize, json_str: &str, error_msg: &str) {
     let id_str = match parse_id(json_str) {
-        Ok(id) => if let Some(s) = id.as_str() {
-            s.to_string()
-        } else {
-            id.to_string()
-        },
+        Ok(id) => {
+            if let Some(s) = id.as_str() {
+                s.to_string()
+            } else {
+                id.to_string()
+            }
+        }
         Err(e) => {
             tracing::debug!("Failed to parse json rpc id from '{}': {}", json_str, e);
             "<unknown id>".to_string()

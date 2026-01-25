@@ -1,23 +1,28 @@
 use mcp_stdio_wrapper::json_rpc_header::{find_first_id, parse_id};
 
+use std::fmt::Write;
 use std::time::Instant;
-
 #[cfg(test)]
 #[test]
+/// test id parsing
+/// # Errors
+/// errors mean test failure
 fn test_parse_id_performance() {
     // 1. Setup Short Input
     let short_json = r#"{"jsonrpc": "2.0", "method": "test", "id": 123}"#;
 
-    // 2. Setup Huge Input (Simulating a several MB payload)
-    // We generate a large array of data inside the JSON to make it heavy
-    let mut large_data = String::from(r#"{"jsonrpc": "2.0", "id": 999, "data": ["#);
-    for i in 0..200000 {
+    // Huge Input (Simulating a several MB payload)
+    let mut large_data = String::with_capacity(20 * 1024 * 1024); // 20MB
+    large_data.push_str(r#"{"jsonrpc": "2.0", "id": 999, "data": ["#);
+
+    for i in 0..314_159 {
         if i > 0 {
             large_data.push(',');
         }
-        large_data.push_str(&format!(
+        let _ = write!(
+            large_data,
             r#"{{"index": {i}, "payload": "some repeated data"}}"#
-        ));
+        );
     }
 
     large_data.push_str("]}");

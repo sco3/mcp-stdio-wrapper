@@ -15,6 +15,7 @@ const NOTIFY: &str = r#"{"jsonrpc":"2.0","method": "notifications/initialized"}"
 /// # Panics
 /// * test fails
 /// # Errors
+/// # Panics
 /// * test setup fails
 #[tokio::test]
 pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
