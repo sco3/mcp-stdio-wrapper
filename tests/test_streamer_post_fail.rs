@@ -1,7 +1,9 @@
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
 use mockito::Server;
-
+/// # Panics
+/// # Errors
+/// on test failure
 #[tokio::test]
 pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = Server::new_async().await;

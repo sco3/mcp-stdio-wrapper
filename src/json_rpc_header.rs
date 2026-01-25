@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use serde_json::Value;
+use struson::reader::{JsonReader, JsonStreamReader};
 
 #[derive(Deserialize, Debug)]
 struct JsonRpcHeader {
@@ -13,29 +14,36 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
     let header: JsonRpcHeader = serde_json::from_str(json_str)?;
     Ok(header.id)
 }
+
+/// Finds the first "id" value from a JSON string using a streaming parser.
+///
+/// This function is optimized for performance on large JSON payloads by avoiding
+/// full deserialization.
+///
+/// # Returns
+///
+/// * `Some(Value)` containing the `id` if found.
+/// * `None` if the JSON is invalid, not an object, or does not contain an "id" key.
 #[must_use]
-/// Finds the first "id" value using a fast SAX-style byte search.
 pub fn find_first_id(json: &str) -> Option<Value> {
-    let bytes = json.as_bytes();
-    let key = b"\"id\"";
-    let key_len = key.len();
+    let mut reader = JsonStreamReader::new(json.as_bytes());
 
-    let mut pos = 0;
-
-    while let Some(hit) = bytes[pos..].windows(key_len).position(|w| w == key) {
-        let absolute_hit = pos + hit;
-        let next_pos = absolute_hit + key_len;
-
-        if let Some(stripped) = json[next_pos..].trim_start().strip_prefix(':') {
-            let value_part = stripped.trim_start();
-
-            let mut de = serde_json::Deserializer::from_str(value_part);
-            if let Ok(id_val) = Value::deserialize(&mut de) {
-                return Some(id_val);
-            }
-        }
-
-        pos = next_pos;
+    // Start reading the top-level object
+    if reader.begin_object().is_err() {
+        return None;
     }
+
+    // Loop through the keys of the object
+    while let Ok(true) = reader.has_next() {
+        let name = reader.next_name().ok()?;
+
+        if name == "id" {
+            // We found the key!
+            let id: Value = reader.deserialize_next().ok()?;
+            return Some(id);
+        }
+        reader.skip_value().ok()?;
+    }
+
     None
 }
