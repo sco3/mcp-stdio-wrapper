@@ -12,11 +12,15 @@ data: {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabili
 "#;
 const NOTIFY: &str = r#"{"jsonrpc":"2.0","method": "notifications/initialized"}"#;
 
-/// # Panics
-/// * test fails
+/// Tests the streamer post failure case.
+///
 /// # Errors
+///
+/// Returns an error if the mock server setup fails.
+///
 /// # Panics
-/// * test setup fails
+///
+/// Panics if the mock server does not receive the expected request.
 #[tokio::test]
 pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = Server::new_async().await;
