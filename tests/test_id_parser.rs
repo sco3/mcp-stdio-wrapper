@@ -43,4 +43,11 @@ fn test_parse_id_performance() {
 
     let found = find_first_id("{}");
     assert!(found.is_none());
+
+    let found = find_first_id("");
+    assert!(found.is_none());
+
+    let false_id = r#"{"some_key": "this value contains \"id\": 123", "id": 456}"#;
+    let found = find_first_id(false_id).unwrap();
+    assert_eq!(found, 456);
 }
