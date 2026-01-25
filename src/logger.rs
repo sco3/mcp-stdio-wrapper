@@ -1,14 +1,12 @@
 use crate::config_defaults::default_mcp_wrapper_log_level;
-use std::io::stderr;
 
 use std::sync::{Mutex, Once};
-use tracing_appender::non_blocking;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 static INIT: Once = Once::new();
 static GUARD: Mutex<Option<WorkerGuard>> = Mutex::new(None);
-fn init_logger_once(log_level: Option<&str>) {
+fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
     let def_level = default_mcp_wrapper_log_level();
 
     let level = log_level.unwrap_or(&def_level);
@@ -16,7 +14,18 @@ fn init_logger_once(log_level: Option<&str>) {
         return;
     }
 
-    let (non_blocking, guard) = non_blocking(stderr());
+    //let (non_blocking, guard) = non_blocking(stderr());
+
+    let (non_blocking, guard) = if let Some(path) = log_file {
+        let file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(path)
+            .expect("Failed to open log file");
+        tracing_appender::non_blocking(file)
+    } else {
+        tracing_appender::non_blocking(std::io::stderr())
+    };
 
     let filter = EnvFilter::try_from_default_env() //
         .unwrap_or_else(|_| EnvFilter::new(level));
@@ -36,6 +45,6 @@ fn init_logger_once(log_level: Option<&str>) {
 }
 
 /// initializes logger
-pub fn init_logger(log_level: Option<&str>) {
-    INIT.call_once(|| init_logger_once(log_level));
+pub fn init_logger(log_level: Option<&str>, log_file: Option<&str>) {
+    INIT.call_once(|| init_logger_once(log_level, log_file));
 }

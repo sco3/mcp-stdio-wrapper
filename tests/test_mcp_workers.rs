@@ -14,7 +14,7 @@ use std::sync::Arc;
 /// Panics if an assertion fails.
 #[tokio::test]
 pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
-    init_logger(Some("debug"));
+    init_logger(Some("debug"), None);
     let mut server = Server::new_async().await;
 
     let expected = "ok";

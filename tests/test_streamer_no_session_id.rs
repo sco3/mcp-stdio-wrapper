@@ -20,6 +20,7 @@ pub async fn test_streamer_no_session_id() -> Result<(), Box<dyn std::error::Err
         mcp_auth: default_mcp_auth(),
         concurrency: default_concurrency(),
         mcp_wrapper_log_level: default_mcp_wrapper_log_level(),
+        mcp_wrapper_log_file: None,
         mcp_tool_call_timeout: default_mcp_tool_call_timeout(),
     };
 

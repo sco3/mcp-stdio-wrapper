@@ -9,7 +9,7 @@ pub const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params"
 
 #[tokio::main]
 async fn main() {
-    init_logger(None);
+    init_logger(None, None);
     let config = Config::parse_from(["--url", URL]);
 
     match McpStreamClient::try_new(config) {
