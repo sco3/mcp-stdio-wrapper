@@ -12,7 +12,7 @@ async fn main() {
     init_logger(Some(&config.mcp_wrapper_log_level));
     debug!("{config:?}");
 
-    info!("Start");
+    debug!("Start");
     let concurrency = config.concurrency;
     match McpStreamClient::try_new(config) {
         Ok(client) => {
@@ -22,5 +22,5 @@ async fn main() {
             error!("Error {e}");
         }
     }
-    info!("Finish");
+    debug!("Finish");
 }
