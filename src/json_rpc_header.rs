@@ -15,6 +15,15 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
     Ok(header.id)
 }
 
+/// Finds the first "id" value from a JSON string using a streaming parser.
+///
+/// This function is optimized for performance on large JSON payloads by avoiding
+/// full deserialization.
+///
+/// # Returns
+///
+/// * `Some(Value)` containing the `id` if found.
+/// * `None` if the JSON is invalid, not an object, or does not contain an "id" key.
 #[must_use]
 pub fn find_first_id(json: &str) -> Option<Value> {
     let mut reader = JsonStreamReader::new(json.as_bytes());
