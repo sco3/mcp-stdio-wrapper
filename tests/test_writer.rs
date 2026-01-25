@@ -8,7 +8,7 @@ use tokio_test::io::Builder;
 /// * test fails
 #[tokio::test]
 pub async fn test_writer() -> Result<(), Box<dyn std::error::Error>> {
-    init_logger(Some("debug"));
+    init_logger(Some("debug"), None);
     let (tx, rx) = flume::unbounded::<String>();
 
     let out = Builder::new().write(b"test\n").build();

@@ -10,7 +10,7 @@ use mcp_stdio_wrapper::stdio_reader::spawn_reader;
 ///
 /// Panics if the received line does not match the expected data.
 async fn test_reader() {
-    init_logger(Some("debug"));
+    init_logger(Some("debug"), None);
     for i in [true, false] {
         let (tx, rx) = flume::unbounded::<String>();
 

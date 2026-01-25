@@ -7,7 +7,7 @@ use mcp_stdio_wrapper::streamer_error::mcp_error;
 /// # Errors
 /// errors mean test failure
 fn test_error() {
-    init_logger(Some("debug"));
+    init_logger(Some("debug"), None);
 
     let worker: usize = 1;
 
