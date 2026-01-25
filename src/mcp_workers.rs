@@ -2,7 +2,7 @@ use crate::streamer::McpStreamClient;
 use crate::streamer_error::mcp_error;
 use flume::{Receiver, Sender};
 use std::sync::Arc;
-use tracing::{debug, error, info};
+use tracing::{debug, error};
 
 pub fn spawn_workers(
     concurrency: usize,
