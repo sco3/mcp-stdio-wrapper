@@ -16,8 +16,7 @@ fn test_parse_id_performance() {
             large_data.push(',');
         }
         large_data.push_str(&format!(
-            r#"{{"index": {}, "payload": "some repeated data"}}"#,
-            i
+            r#"{{"index": {i}, "payload": "some repeated data"}}"#
         ));
     }
 
@@ -38,8 +37,8 @@ fn test_parse_id_performance() {
     let duration_large = start_large.elapsed();
     assert_eq!(id_large, 999);
 
-    println!("Short JSON parse time: {:?}", duration_short);
-    println!("Large JSON parse time: {:?}", duration_large);
+    println!("Short JSON parse time: {duration_short:?}");
+    println!("Large JSON parse time: {duration_large:?}");
 
     let found = find_first_id("{}");
     assert!(found.is_none());
