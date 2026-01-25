@@ -1,40 +1,43 @@
 use crate::config_defaults::default_mcp_wrapper_log_level;
-use std::io;
-use std::sync::Once;
+use std::io::stderr;
+
+use std::sync::{Mutex, Once};
 use tracing::debug;
+use tracing_appender::non_blocking;
+use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 static INIT: Once = Once::new();
-
+static GUARD: Mutex<Option<WorkerGuard>> = Mutex::new(None);
 fn init_logger_once(log_level: Option<&str>) {
     let def_level = default_mcp_wrapper_log_level();
-    let log_level = log_level.unwrap_or(&def_level);
 
-    if log_level == "off" {
+    let level = log_level.unwrap_or(&def_level);
+    if level == "off" {
         return;
     }
 
+    let (non_blocking, guard) = non_blocking(stderr());
+
     let filter = EnvFilter::try_from_default_env() //
-        .unwrap_or_else(|_| EnvFilter::new(log_level)); // use config
+        .unwrap_or_else(|_| EnvFilter::new(level));
 
-    let writer = io::stderr;
-    let dest = "stderr";
+    let layer = fmt::layer() //
+        .with_ansi(false)
+        .with_writer(non_blocking);
 
-    let layer = fmt::layer()
-        .with_ansi(false) // b/w
-        .with_writer(writer);
-
-    tracing_subscriber::registry()
+    let _ = tracing_subscriber::registry()
         .with(filter)
         .with(layer)
-        .init();
+        .try_init();
 
-    debug!("Logger initialized with log level: {log_level} to {dest}",);
+    debug!("Logger initialized with level: {level} to stderr");
+    if let Ok(mut guard_lock) = GUARD.lock() {
+        *guard_lock = Some(guard);
+    }
 }
 
 /// initializes logger
 pub fn init_logger(log_level: Option<&str>) {
-    INIT.call_once(|| {
-        init_logger_once(log_level);
-    });
+    INIT.call_once(|| init_logger_once(log_level));
 }

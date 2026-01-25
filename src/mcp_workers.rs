@@ -16,7 +16,7 @@ pub fn spawn_workers(
         let client = mcp_client.clone();
 
         tokio::spawn(async move {
-            info!("Worker {} started", i);
+            debug!("Worker {} started", i);
             while let Ok(line) = rx.recv_async().await {
                 debug!("Worker {i} processing message: {line}");
                 let response = client.stream_post(line.clone()).await;
@@ -43,7 +43,7 @@ pub fn spawn_workers(
                     }
                 }
             }
-            info!("Worker {} shutting down", i);
+            debug!("Worker {} shutting down", i);
         });
     }
     drop(output_tx);
