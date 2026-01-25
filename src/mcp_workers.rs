@@ -19,7 +19,7 @@ pub fn spawn_workers(
             info!("Worker {} started", i);
             while let Ok(line) = rx.recv_async().await {
                 debug!("Worker {i} processing message: {line}");
-                let response = client.stream_post(line).await;
+                let response = client.stream_post(line.clone()).await;
                 match response {
                     Ok(res) => {
                         // check every line
