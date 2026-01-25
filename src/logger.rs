@@ -2,7 +2,6 @@ use crate::config_defaults::default_mcp_wrapper_log_level;
 use std::io::stderr;
 
 use std::sync::{Mutex, Once};
-use tracing::debug;
 use tracing_appender::non_blocking;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
@@ -31,7 +30,6 @@ fn init_logger_once(log_level: Option<&str>) {
         .with(layer)
         .try_init();
 
-    debug!("Logger initialized with level: {level} to stderr");
     if let Ok(mut guard_lock) = GUARD.lock() {
         *guard_lock = Some(guard);
     }

@@ -2,7 +2,7 @@ use crate::streamer::McpStreamClient;
 use crate::streamer_error::mcp_error;
 use flume::{Receiver, Sender};
 use std::sync::Arc;
-use tracing::{debug, error, info};
+use tracing::{debug, error};
 
 pub fn spawn_workers(
     concurrency: usize,
@@ -16,7 +16,6 @@ pub fn spawn_workers(
         let client = mcp_client.clone();
 
         tokio::spawn(async move {
-            debug!("Worker {} started", i);
             while let Ok(line) = rx.recv_async().await {
                 debug!("Worker {i} processing message: {line}");
                 let response = client.stream_post(line.clone()).await;
