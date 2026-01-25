@@ -1,6 +1,4 @@
-use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::stdio_reader::spawn_reader;
-use tokio_test::io::Builder;
 #[tokio::test]
 ///
 /// # Errors
@@ -10,16 +8,31 @@ use tokio_test::io::Builder;
 /// # Panics
 ///
 /// Panics if the received line does not match the expected data.
-pub async fn test_reader() -> Result<(), Box<dyn std::error::Error>> {
-    let data = "test";
-    init_logger(Some("debug"));
+async fn test_reader_break_coverage() {
     let (tx, rx) = flume::unbounded::<String>();
 
-    let stdio = Builder::new().read(data.as_bytes()).build();
-    spawn_reader(tx, stdio);
+    // We provide two lines.
+    // Line 1 will be sent successfully.
+    // Line 2 will trigger the send error because we drop(rx) in between.
+    let stdio = tokio_test::io::Builder::new()
+        .read(b"line1\n")
+        .wait(std::time::Duration::from_millis(10)) // Give us time to drop
+        .read(b"line2\n")
+        .build();
 
-    let line = rx.recv_async().await?;
-    assert_eq!(line, data);
+    let handle = spawn_reader(tx, stdio);
 
-    Ok(())
+    // 1. Receive the first line
+    let first = rx.recv_async().await.expect("Should receive line1");
+    assert_eq!(first, "line1");
+
+    // 2. Kill the receiver
+    drop(rx);
+
+    // 3. Wait for the background task to try to send "line2" and fail
+    let _ = handle.await;
+
+    // After awaiting the handle, the code MUST have executed the break
+    // because that is the only way the task can finish when data is still
+    // available in the reader.
 }
