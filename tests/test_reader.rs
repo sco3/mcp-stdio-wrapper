@@ -30,8 +30,8 @@ async fn test_reader() {
             drop(rx);
         } else {
             // test eof
-            let first = rx.recv_async().await.expect("Should receive line2");
-            assert_eq!(first, "line2");
+            let second = rx.recv_async().await.expect("Should receive line2");
+            assert_eq!(second, "line2");
         }
 
         let _ = handle.await;
