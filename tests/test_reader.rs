@@ -1,6 +1,5 @@
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::stdio_reader::spawn_reader;
-use tokio_test::io::Builder;
 #[tokio::test]
 ///
 /// # Errors
@@ -10,16 +9,31 @@ use tokio_test::io::Builder;
 /// # Panics
 ///
 /// Panics if the received line does not match the expected data.
-pub async fn test_reader() -> Result<(), Box<dyn std::error::Error>> {
-    let data = "test";
+async fn test_reader() {
     init_logger(Some("debug"));
-    let (tx, rx) = flume::unbounded::<String>();
+    for i in [true, false] {
+        let (tx, rx) = flume::unbounded::<String>();
 
-    let stdio = Builder::new().read(data.as_bytes()).build();
-    spawn_reader(tx, stdio);
+        let stdio = tokio_test::io::Builder::new()
+            .read(b"line1\n")
+            .wait(std::time::Duration::from_millis(10)) // Give us time to drop
+            .read(b"line2\n")
+            .build();
 
-    let line = rx.recv_async().await?;
-    assert_eq!(line, data);
+        let handle = spawn_reader(tx, stdio);
 
-    Ok(())
+        let first = rx.recv_async().await.expect("Should receive line1");
+        assert_eq!(first, "line1");
+
+        if i {
+            // test termination
+            drop(rx);
+        } else {
+            // test eof
+            let second = rx.recv_async().await.expect("Should receive line2");
+            assert_eq!(second, "line2");
+        }
+
+        let _ = handle.await;
+    }
 }

@@ -1,9 +1,10 @@
 use flume::Sender;
 use tokio::io::{AsyncBufReadExt, AsyncRead, BufReader};
+use tokio::task::JoinHandle;
 use tracing::debug;
 
 /// stdio reader
-pub fn spawn_reader<R>(tx: Sender<String>, reader: R)
+pub fn spawn_reader<R>(tx: Sender<String>, reader: R) -> JoinHandle<()>
 where
     R: AsyncRead + Unpin + Send + 'static,
 {
@@ -13,8 +14,10 @@ where
         while let Ok(Some(line)) = reader.next_line().await {
             debug!("Read: {line}");
             if tx.send_async(line).await.is_err() {
+                debug!("Reader loop terminated");
                 break;
             }
         }
-    });
+        debug!("Exit reader loop");
+    })
 }
