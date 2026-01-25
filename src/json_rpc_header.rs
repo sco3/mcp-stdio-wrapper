@@ -25,7 +25,7 @@ pub fn find_first_id(json: &str) -> Option<Value> {
     while let Some(hit) = bytes[pos..].windows(key_len).position(|w| w == key) {
         let absolute_hit = pos + hit;
 
-        let mut check_pos = absolute_hit + key_len;
+        let check_pos = absolute_hit + key_len;
 
         let rest = &json[check_pos..];
         let trimmed_rest = rest.trim_start();
