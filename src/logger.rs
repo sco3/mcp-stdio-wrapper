@@ -17,12 +17,16 @@ fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
     //let (non_blocking, guard) = non_blocking(stderr());
 
     let (non_blocking, guard) = if let Some(path) = log_file {
-        let file = std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(path)
-            .expect("Failed to open log file");
-        tracing_appender::non_blocking(file)
+        match std::fs::OpenOptions::new().create(true).append(true).open(path) {
+            Ok(file) => tracing_appender::non_blocking(file),
+            Err(e) => {
+                eprintln!(
+                    "WARN: Failed to open log file '{}', falling back to stderr. Error: {}",
+                    path, e
+                );
+                tracing_appender::non_blocking(std::io::stderr())
+            }
+        }
     } else {
         tracing_appender::non_blocking(std::io::stderr())
     };
