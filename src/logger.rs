@@ -1,6 +1,6 @@
 use crate::config_defaults::default_mcp_wrapper_log_level;
-use io::stderr;
-use std::io;
+use std::io::stderr;
+
 use std::sync::{Mutex, Once};
 use tracing::debug;
 use tracing_appender::non_blocking;
