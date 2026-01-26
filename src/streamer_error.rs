@@ -1,7 +1,7 @@
 use crate::json_rpc_header::find_first_id;
 use flume::Sender;
 use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
-use serde_json::{json, Value};
+use serde_json::json;
 use tracing::error;
 
 /// creates error message
@@ -31,7 +31,7 @@ pub async fn mcp_error(
 
     let json_msg = match serde_json::to_string(&response) {
         Ok(msg) => msg,
-        Err(e) => make_json_message(id, error_msg),
+        Err(_e) => make_json_message(id, error_msg),
     };
 
     if let Err(e) = tx.send_async(json_msg).await {
@@ -39,6 +39,7 @@ pub async fn mcp_error(
     }
 }
 
+#[must_use] 
 pub fn make_json_message(id: Id, error_msg: &str) -> String {
     json!({
         "jsonrpc": Version::V2,
