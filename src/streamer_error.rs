@@ -1,8 +1,16 @@
 use crate::json_rpc_header::parse_id;
+use flume::Sender;
 use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Output};
 use tracing::error;
+
 /// creates error message
-pub fn mcp_error(worker_id: &usize, json_str: &str, error_msg: &str) -> String {
+pub async fn mcp_error(
+    //
+    worker_id: &usize,
+    json_str: &str,
+    error_msg: &str,
+    tx: &Sender<String>,
+) {
     let id_str = match parse_id(json_str) {
         Ok(id) => {
             if let Some(s) = id.as_str() {
@@ -25,9 +33,18 @@ pub fn mcp_error(worker_id: &usize, json_str: &str, error_msg: &str) -> String {
     let response = Failure {
         jsonrpc: None, // The serializer will handle the "2.0" versioning
         error: error_obj,
-        id: Id::Str(id_str),
+        id: Id::Str(id_str.clone()),
+    };
+    error!("Worker {worker_id} rpc id: {id_str} Wrapper: MCP request failed: {error_msg}");
+    let json_msg = match serde_json::to_string(&response) {
+        Ok(json_msg) => json_msg,
+        Err(e) => String::new(),
     };
 
-    serde_json::to_string_pretty(&response).unwrap()
-    //error!("Worker {worker_id} rpc id: {id_str} Wrapper: MCP request failed: {error_msg}");
+    match tx.send_async(json_msg).await {
+        Ok(_) => {}
+        Err(e) => {
+            error!("Worker {worker_id}: failed to send JSON-RPC response: {e}");
+        }
+    }
 }
