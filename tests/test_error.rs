@@ -21,7 +21,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     // Define test cases as (input_json, error_message, expected_output) tuples
     let test_cases = vec![
         (
-            json!({"jsonrpc":"2.0","id":1,"method":"tools/list"}),
+            json!({"jsonrpc":"2.0","id":1,"method":"tools/list"}).to_string(),
             "error1",
             json!({
                 "jsonrpc":"2.0",
@@ -30,7 +30,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
             }),
         ),
         (
-            json!({"jsonrpc":"2.0","id":"id_2","method":"tools/list"}),
+            json!({"jsonrpc":"2.0","id":"id_2","method":"tools/list"}).to_string(),
             "error2",
             json!({
                 "jsonrpc":"2.0",
@@ -39,7 +39,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
             }),
         ),
         (
-            json!(""),
+            "".to_string(),
             "error3",
             json!({
                 "jsonrpc":"2.0",
@@ -50,8 +50,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     // Run tests in a loop
-    for (input_json, error_msg, expected) in test_cases {
-        let s = input_json.to_string();
+    for (s, error_msg, expected) in test_cases {
         mcp_error(&worker, &s, error_msg, &tx).await;
         verify(&rx, expected).await;
     }
