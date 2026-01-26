@@ -4,6 +4,12 @@ use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::streamer_error::mcp_error;
 use serde_json::{json, Value};
 
+struct TestCase {
+    input_json: String,
+    error_message: &'static str,
+    expected_output: Value,
+}
+
 #[cfg(test)]
 #[tokio::test]
 /// test id parsing
@@ -13,17 +19,8 @@ use serde_json::{json, Value};
 /// code panics when test fails
 async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     init_logger(Some("debug"), None);
-
     let (tx, rx) = flume::unbounded();
-
     let worker: usize = 1;
-
-    struct TestCase {
-        input_json: String,
-        error_message: &'static str,
-        expected_output: Value,
-    }
-
     let test_cases = vec![
         TestCase {
             input_json: json!({"jsonrpc":"2.0","id":1,"method":"tools/list"}).to_string(),
