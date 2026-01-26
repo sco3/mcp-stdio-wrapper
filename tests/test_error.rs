@@ -54,14 +54,14 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     // Run tests in a loop
     for case in test_cases {
         mcp_error(&worker, &case.input_json, case.error_message, &tx).await;
-        verify(&rx, case.expected_output).await;
+        verify(&rx, &case.expected_output).await;
     }
     Ok(())
 }
 
-async fn verify(rx: &Receiver<String>, expected: Value) {
+async fn verify(rx: &Receiver<String>, expected: &Value) {
     let msg = rx.recv_async().await.expect("receiving error");
     let actual = serde_json::from_str::<Value>(&msg).expect("deserializing error");
     println!("{actual}");
-    assert_eq!(actual, expected);
+    assert_eq!(actual, *expected);
 }
