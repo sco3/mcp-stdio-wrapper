@@ -18,44 +18,51 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
 
     let worker: usize = 1;
 
-    let json = r#"{"jsonrpc":"2.0","id":1,"method":"tools/list"}"#;
-    mcp_error(&worker, json, "error1", &tx).await;
-    verify(
-        &rx,
-        &json!({
-            "jsonrpc":"2.0","error":{"code":ErrorCode::InternalError,"message":"error1"},
-            "id":1
-        }),
-    )
-    .await;
+    // Define test cases as (input_json, error_message, expected_output) tuples
+    let test_cases = vec![
+        (
+            json!({"jsonrpc":"2.0","id":1,"method":"tools/list"}),
+            "error1",
+            json!({
+                "jsonrpc":"2.0",
+                "error":{"code":ErrorCode::InternalError,"message":"error1"},
+                "id":1
+            }),
+        ),
+        (
+            json!({"jsonrpc":"2.0","id":"id_2","method":"tools/list"}),
+            "error2",
+            json!({
+                "jsonrpc":"2.0",
+                "error":{"code":ErrorCode::InternalError,"message":"error2"},
+                "id":"id_2"
+            }),
+        ),
+        (
+            json!(""),
+            "error3",
+            json!({
+                "jsonrpc":"2.0",
+                "error":{"code":ErrorCode::InternalError,"message":"error3"},
+                "id":null
+            }),
+        ),
+    ];
 
-    let json = r#"{"jsonrpc":"2.0","id":"id_2","method":"tools/list"}"#;
-    mcp_error(&worker, json, "error2", &tx).await;
-    verify(
-        &rx,
-        &json!({
-            "jsonrpc":"2.0","error":{"code":ErrorCode::InternalError,"message":"error2"},
-            "id":"id_2"
-        }),
-    )
-    .await;
+    // Run tests in a loop
+    for (input_json, error_msg, expected) in test_cases {
+        let json_str = input_json.to_string();
+        let json_str = json_str.trim_matches('"');
+        mcp_error(&worker, json_str, error_msg, &tx).await;
+        verify(&rx, expected).await;
+    }
 
-    let json = "";
-    mcp_error(&worker, json, "error3", &tx).await;
-    verify(
-        &rx,
-        &json!({
-            "jsonrpc":"2.0","error":{"code":ErrorCode::InternalError,"message":"error3"},
-            "id":null
-        }),
-    )
-    .await;
     Ok(())
 }
 
-async fn verify(rx: &Receiver<String>, expected: &Value) {
+async fn verify(rx: &Receiver<String>, expected: Value) {
     let msg = rx.recv_async().await.expect("receiving error");
     let actual = serde_json::from_str::<Value>(&msg).expect("deserializing error");
     println!("{actual}");
-    assert_eq!(actual, *expected);
+    assert_eq!(actual, expected);
 }
