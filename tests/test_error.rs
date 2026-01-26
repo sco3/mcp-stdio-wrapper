@@ -51,11 +51,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
 
     // Run tests in a loop
     for (input_json, error_msg, expected) in test_cases {
-        let s = if let Some(s) = input_json.as_str() {
-            s
-        } else {
-            &input_json.to_string()
-        };
+        let s = input_json.to_string();
         mcp_error(&worker, &s, error_msg, &tx).await;
         verify(&rx, expected).await;
     }
