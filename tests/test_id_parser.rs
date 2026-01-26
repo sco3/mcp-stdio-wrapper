@@ -1,5 +1,4 @@
 use mcp_stdio_wrapper::json_rpc_header::{find_first_id, parse_id};
-use jsonrpc_core::{serde_json, Id};
 use std::fmt::Write;
 use std::time::Instant;
 use jsonrpc_core::Id::Num;
