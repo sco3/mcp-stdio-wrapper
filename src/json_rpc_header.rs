@@ -1,5 +1,5 @@
+use jsonrpc_core::Id;
 use serde::Deserialize;
-use serde_json::Value;
 use struson::reader::{JsonReader, JsonStreamReader};
 
 #[derive(Deserialize, Debug)]
@@ -25,25 +25,21 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
 /// * `Some(Value)` containing the `id` if found.
 /// * `None` if the JSON is invalid, not an object, or does not contain an "id" key.
 #[must_use]
-pub fn find_first_id(json: &str) -> Option<Value> {
+pub fn find_first_id(json: &str) -> Option<Id> {
     let mut reader = JsonStreamReader::new(json.as_bytes());
 
-    // Start reading the top-level object
     if reader.begin_object().is_err() {
         return None;
     }
 
-    // Loop through the keys of the object
     while let Ok(true) = reader.has_next() {
         let name = reader.next_name().ok()?;
-
         if name == "id" {
-            // We found the key!
-            let id: Value = reader.deserialize_next().ok()?;
+            // Deserialize directly into the jsonrpc_core::Id type
+            let id: Id = reader.deserialize_next().ok()?;
             return Some(id);
         }
         reader.skip_value().ok()?;
     }
-
     None
 }

@@ -21,8 +21,7 @@ fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
             Ok(file) => tracing_appender::non_blocking(file),
             Err(e) => {
                 eprintln!(
-                    "WARN: Failed to open log file '{}', falling back to stderr. Error: {}",
-                    path, e
+                    "WARN: Failed to open log file '{path}', falling back to stderr. Error: {e}"
                 );
                 tracing_appender::non_blocking(std::io::stderr())
             }
