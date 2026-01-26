@@ -33,10 +33,7 @@ pub async fn mcp_error(
         Ok(msg) => msg,
         Err(e) => json!({
             "jsonrpc": "2.0",
-            "error": {
-                "code": -32603,
-                "message": e.to_string()
-            },
+            "error": {"code": ErrorCode::InternalError,"message": e.to_string()},
             "id": id
         })
         .to_string(),

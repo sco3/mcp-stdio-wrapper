@@ -17,7 +17,11 @@ fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
     //let (non_blocking, guard) = non_blocking(stderr());
 
     let (non_blocking, guard) = if let Some(path) = log_file {
-        match std::fs::OpenOptions::new().create(true).append(true).open(path) {
+        match std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(path)
+        {
             Ok(file) => tracing_appender::non_blocking(file),
             Err(e) => {
                 eprintln!(
