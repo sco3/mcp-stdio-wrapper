@@ -43,13 +43,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn verify(rx: &Receiver<String>, expected_err: &str) {
-    match rx.recv_async().await {
-        Ok(msg) => {
-            println!("{msg}");
-            assert_eq!(msg, expected_err.to_string(),);
-        }
-        Err(_) => {
-            panic!("reading error")
-        }
-    }
+    let msg = rx.recv_async().await.expect("receiving error");
+    println!("{msg}");
+    assert_eq!(msg, expected_err.to_string());
 }
