@@ -2,7 +2,6 @@ use flume::Receiver;
 use jsonrpc_core::{ErrorCode, Id};
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::streamer_error::{make_json_message, mcp_error};
-use serde::ser::Error;
 use serde_json::{json, Value};
 
 struct TestCase {
