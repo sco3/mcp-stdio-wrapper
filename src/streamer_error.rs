@@ -1,6 +1,6 @@
 use crate::json_rpc_header::parse_id;
 use flume::Sender;
-use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id};
+use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
 use tracing::error;
 
 /// creates error message
