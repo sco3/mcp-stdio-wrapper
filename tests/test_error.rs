@@ -51,10 +51,12 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
 
     // Run tests in a loop
     for (input_json, error_msg, expected) in test_cases {
-        let json_str = input_json.to_string();
-        let json_str = json_str.trim_matches('"');
-        mcp_error(&worker, json_str, error_msg, &tx).await;
-        verify(&rx, expected).await;
+        if let Some(s) = input_json.as_str() {
+            mcp_error(&worker, s, error_msg, &tx).await;
+        } else {
+            let s = input_json.to_string();
+            mcp_error(&worker, &s, error_msg, &tx).await;
+        }        verify(&rx, expected).await;
     }
 
     Ok(())
