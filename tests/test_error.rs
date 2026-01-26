@@ -44,7 +44,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
             }),
         },
         TestCase {
-            input_json: "".to_string(),
+            input_json: String::new(),
             error_message: "error3",
             expected_output: json!({
                 "jsonrpc":"2.0",
