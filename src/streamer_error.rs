@@ -36,13 +36,10 @@ pub async fn mcp_error(
         id: Id::Str(id_str.clone()),
     };
     error!("Worker {worker_id} rpc id: {id_str} Wrapper: MCP request failed: {error_msg}");
-    let json_msg = match serde_json::to_string(&response) {
-        Ok(json_msg) => json_msg,
-        Err(_e) => String::new(),
-    };
+    let json_msg = serde_json::to_string(&response).unwrap_or_default();
 
     match tx.send_async(json_msg).await {
-        Ok(_) => {}
+        Ok(()) => {}
         Err(e) => {
             error!("Worker {worker_id}: failed to send JSON-RPC response: {e}");
         }
