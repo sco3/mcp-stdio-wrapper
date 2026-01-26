@@ -1,6 +1,7 @@
 use crate::json_rpc_header::parse_id;
 use flume::Sender;
 use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
+use serde_json::json;
 use tracing::error;
 
 /// creates error message
@@ -35,8 +36,21 @@ pub async fn mcp_error(
         error: error_obj,
         id: Id::Str(id_str.clone()),
     };
-    error!("Worker {worker_id} rpc id: {id_str} Wrapper: MCP request failed: {error_msg}");
-    let json_msg = serde_json::to_string(&response).unwrap_or_default();
+
+    let json_msg = match serde_json::to_string(&response) {
+        Ok(msg) => msg,
+        Err(e) => {
+            json!({
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32603,
+                    "message": e.to_string()
+                },
+                "id": id_str
+            })
+            .to_string()
+        }
+    };
 
     match tx.send_async(json_msg).await {
         Ok(()) => {}
