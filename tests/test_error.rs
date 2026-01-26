@@ -1,7 +1,8 @@
 use flume::Receiver;
-use jsonrpc_core::ErrorCode;
+use jsonrpc_core::{ErrorCode, Id};
 use mcp_stdio_wrapper::logger::init_logger;
-use mcp_stdio_wrapper::streamer_error::mcp_error;
+use mcp_stdio_wrapper::streamer_error::{make_json_message, mcp_error};
+use serde::ser::Error;
 use serde_json::{json, Value};
 
 struct TestCase {
@@ -56,6 +57,9 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
         mcp_error(&worker, &case.input_json, case.error_message, &tx).await;
         verify(&rx, &case.expected_output).await;
     }
+
+    let test_message = make_json_message(Id::Null, "test_error");
+    println!("{test_message}");
     Ok(())
 }
 
