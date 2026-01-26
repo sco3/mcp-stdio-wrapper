@@ -41,7 +41,7 @@ pub async fn mcp_error(
 
 pub fn make_json_message(id: Id, error_msg: &str) -> String {
     json!({
-        "jsonrpc": "2.0",
+        "jsonrpc": Version::V2,
         "error": {"code": ErrorCode::InternalError,"message": error_msg},
         "id": id
     })
