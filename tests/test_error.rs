@@ -36,7 +36,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     mcp_error(&worker, json, "error3", &tx).await;
     verify(
         &rx,
-        r#"{"error":{"code":-32603,"message":"error3"},"id":"<unknown id>"}"#,
+        r#"{"jsonrpc":"2.0","error":{"code":-32603,"message":"error3"},"id":"<unknown id>"}"#,
     )
     .await;
     Ok(())
