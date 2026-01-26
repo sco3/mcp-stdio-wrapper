@@ -14,7 +14,7 @@ pub async fn mcp_error(
 ) {
     let id = find_first_id(json_str).unwrap_or_else(|| {
         tracing::debug!("Failed to parse json rpc id from '{json_str}'");
-        Id::Str("<unknown_id>".to_string())
+        Id::Null
     });
 
     let error_obj = Error {
@@ -33,10 +33,7 @@ pub async fn mcp_error(
         Ok(msg) => msg,
         Err(e) => json!({
             "jsonrpc": "2.0",
-            "error": {
-                "code": -32603,
-                "message": e.to_string()
-            },
+            "error": {"code": ErrorCode::InternalError,"message": e.to_string()},
             "id": id
         })
         .to_string(),

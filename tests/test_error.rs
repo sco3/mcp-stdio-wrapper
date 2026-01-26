@@ -1,6 +1,8 @@
 use flume::Receiver;
+use jsonrpc_core::ErrorCode;
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::streamer_error::mcp_error;
+use serde_json::{json, Value};
 
 #[cfg(test)]
 #[tokio::test]
@@ -20,7 +22,10 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     mcp_error(&worker, json, "error1", &tx).await;
     verify(
         &rx,
-        r#"{"jsonrpc":"2.0","error":{"code":-32603,"message":"error1"},"id":1}"#,
+        &json!({
+            "jsonrpc":"2.0","error":{"code":ErrorCode::InternalError,"message":"error1"},
+            "id":1
+        }),
     )
     .await;
 
@@ -28,7 +33,10 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     mcp_error(&worker, json, "error2", &tx).await;
     verify(
         &rx,
-        r#"{"jsonrpc":"2.0","error":{"code":-32603,"message":"error2"},"id":"id_2"}"#,
+        &json!({
+            "jsonrpc":"2.0","error":{"code":ErrorCode::InternalError,"message":"error2"},
+            "id":"id_2"
+        }),
     )
     .await;
 
@@ -36,14 +44,18 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     mcp_error(&worker, json, "error3", &tx).await;
     verify(
         &rx,
-        r#"{"jsonrpc":"2.0","error":{"code":-32603,"message":"error3"},"id":"<unknown_id>"}"#,
+        &json!({
+            "jsonrpc":"2.0","error":{"code":ErrorCode::InternalError,"message":"error3"},
+            "id":null
+        }),
     )
     .await;
     Ok(())
 }
 
-async fn verify(rx: &Receiver<String>, expected_err: &str) {
+async fn verify(rx: &Receiver<String>, expected: &Value) {
     let msg = rx.recv_async().await.expect("receiving error");
-    println!("{msg}");
-    assert_eq!(msg, expected_err.to_string());
+    let actual = serde_json::from_str::<Value>(&msg).expect("deserializing error");
+    println!("{actual}");
+    assert_eq!(actual, *expected);
 }
