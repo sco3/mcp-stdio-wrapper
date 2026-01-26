@@ -14,7 +14,7 @@ pub async fn mcp_error(
 ) {
     let id = find_first_id(json_str).unwrap_or_else(|| {
         tracing::debug!("Failed to parse json rpc id from '{json_str}'");
-        Id::Str("<unknown_id>".to_string())
+        Id::Null
     });
 
     let error_obj = Error {
