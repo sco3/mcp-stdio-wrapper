@@ -50,8 +50,6 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     // Run tests in a loop
-    let mut count = 0;
-    let expected_count = test_cases.len();
     for (input_json, error_msg, expected) in test_cases {
         let s = if let Some(s) = input_json.as_str() {
             s
@@ -60,9 +58,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
         };
         mcp_error(&worker, &s, error_msg, &tx).await;
         verify(&rx, expected).await;
-        count += 1;
     }
-    assert_eq!(count, expected_count);
     Ok(())
 }
 
