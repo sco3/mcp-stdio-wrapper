@@ -18,41 +18,46 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
 
     let worker: usize = 1;
 
-    // Define test cases as (input_json, error_message, expected_output) tuples
+    struct TestCase {
+        input_json: String,
+        error_message: &'static str,
+        expected_output: Value,
+    }
+
     let test_cases = vec![
-        (
-            json!({"jsonrpc":"2.0","id":1,"method":"tools/list"}).to_string(),
-            "error1",
-            json!({
+        TestCase {
+            input_json: json!({"jsonrpc":"2.0","id":1,"method":"tools/list"}).to_string(),
+            error_message: "error1",
+            expected_output: json!({
                 "jsonrpc":"2.0",
                 "error":{"code":ErrorCode::InternalError,"message":"error1"},
                 "id":1
             }),
-        ),
-        (
-            json!({"jsonrpc":"2.0","id":"id_2","method":"tools/list"}).to_string(),
-            "error2",
-            json!({
+        },
+        TestCase {
+            input_json: json!({"jsonrpc":"2.0","id":"id_2","method":"tools/list"}).to_string(),
+            error_message: "error2",
+            expected_output: json!({
                 "jsonrpc":"2.0",
                 "error":{"code":ErrorCode::InternalError,"message":"error2"},
                 "id":"id_2"
             }),
-        ),
-        (
-            "".to_string(),
-            "error3",
-            json!({
+        },
+        TestCase {
+            input_json: "".to_string(),
+            error_message: "error3",
+            expected_output: json!({
                 "jsonrpc":"2.0",
                 "error":{"code":ErrorCode::InternalError,"message":"error3"},
                 "id":null
             }),
-        ),
+        },
     ];
 
     // Run tests in a loop
-    for (s, error_msg, expected) in test_cases {
-        mcp_error(&worker, &s, error_msg, &tx).await;
-        verify(&rx, expected).await;
+    for case in test_cases {
+        mcp_error(&worker, &case.input_json, case.error_message, &tx).await;
+        verify(&rx, case.expected_output).await;
     }
     Ok(())
 }
