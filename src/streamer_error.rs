@@ -12,12 +12,11 @@ pub async fn mcp_error(
     error_msg: &str,
     tx: &Sender<String>,
 ) {
-    let id = if let Some(id) = find_first_id(json_str) {
-        id
-    } else {
+    let id = find_first_id(json_str).unwrap_or_else(|| {
         tracing::debug!("Failed to parse json rpc id from '{json_str}'");
         Id::Str("<unknown_id>".to_string())
-    };
+    });
+
     let error_obj = Error {
         code: ErrorCode::InternalError,
         message: error_msg.to_string(),
