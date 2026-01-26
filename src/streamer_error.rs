@@ -31,7 +31,7 @@ pub async fn mcp_error(
     };
 
     let response = Failure {
-        jsonrpc: None, // The serializer will handle the "2.0" versioning
+        jsonrpc: Some(Version::V2),
         error: error_obj,
         id: Id::Str(id_str.clone()),
     };
