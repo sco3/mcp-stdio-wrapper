@@ -56,7 +56,8 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
         } else {
             let s = input_json.to_string();
             mcp_error(&worker, &s, error_msg, &tx).await;
-        }        verify(&rx, expected).await;
+        };
+        verify(&rx, expected).await;
     }
 
     Ok(())
