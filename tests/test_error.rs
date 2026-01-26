@@ -58,7 +58,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
         verify(&rx, &case.expected_output).await;
     }
 
-    let test_message = make_json_message(Id::Null, "test_error");
+    let test_message = make_json_message(&Id::Null, "test_error");
     println!("{test_message}");
     Ok(())
 }
