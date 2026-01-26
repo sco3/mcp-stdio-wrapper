@@ -59,7 +59,6 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
         };
         verify(&rx, expected).await;
     }
-
     Ok(())
 }
 
