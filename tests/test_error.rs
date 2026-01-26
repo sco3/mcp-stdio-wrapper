@@ -5,7 +5,7 @@ use mcp_stdio_wrapper::streamer_error::mcp_error;
 use serde_json::{json, Value};
 
 struct TestCase {
-    input_json: &'static str,
+    input_json: String,
     error_message: &'static str,
     expected_output: Value,
 }
