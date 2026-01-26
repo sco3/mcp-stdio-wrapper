@@ -1,4 +1,4 @@
-use crate::json_rpc_header::parse_id;
+use crate::json_rpc_header::{find_first_id, parse_id};
 use flume::Sender;
 use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
 use serde_json::json;
@@ -12,17 +12,13 @@ pub async fn mcp_error(
     error_msg: &str,
     tx: &Sender<String>,
 ) {
-    let id_str = match parse_id(json_str) {
-        Ok(id) => {
-            if let Some(s) = id.as_str() {
-                s.to_string()
-            } else {
-                id.to_string()
-            }
+    let id = match find_first_id(json_str) {
+        Some(id) => {
+            id
         }
-        Err(e) => {
-            tracing::debug!("Failed to parse json rpc id from '{}': {}", json_str, e);
-            "<unknown id>".to_string()
+        None => {
+            tracing::debug!("Failed to parse json rpc id from '{json_str}'");
+            Id::Str("<unknown_id>".to_string())
         }
     };
     let error_obj = Error {
@@ -34,7 +30,7 @@ pub async fn mcp_error(
     let response = Failure {
         jsonrpc: Some(Version::V2),
         error: error_obj,
-        id: Id::Str(id_str.clone()),
+        id: id.clone(),
     };
 
     let json_msg = match serde_json::to_string(&response) {
@@ -45,7 +41,7 @@ pub async fn mcp_error(
                 "code": -32603,
                 "message": e.to_string()
             },
-            "id": id_str
+            "id": id
         })
         .to_string(),
     };
