@@ -1,0 +1,25 @@
+#!/usr/bin/env -S bash
+
+set -xueo pipefail
+
+
+EXE=(
+  uv --project "$HOME/prj/mcp-context-forge/"
+  run -m mcpgateway.wrapper
+  --url "http://localhost:8080/servers/9779b6698cbd4b4995ee04a4fab38737/mcp"
+  --auth "Bearer $(cat ~/.local/cf-token.txt)"
+)
+
+INIT='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"demo","version":"0.0.1"}}}'
+NOTIFY='{"jsonrpc":"2.0","method":"notifications/initialized"}'
+LIST='{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+
+(
+  echo "$INIT"
+  sleep 1
+  echo "$NOTIFY"
+  sleep 1
+  echo "$LIST"
+  sleep 1
+
+) |  "${EXE[@]}"
