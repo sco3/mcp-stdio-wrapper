@@ -1,26 +1,23 @@
 use crate::post_result::PostResult;
 use flume::Sender;
-use tracing::{debug, error};
+use tracing::error;
 /// writes worker output to stdout
 pub async fn write_output(i: usize, tx: &Sender<String>, res: PostResult) {
     // check every line
-    for sse_line in res.out.lines() {
-        let sse_line = sse_line.trim();
-        if res.sse {
-            // take only "data: ..."
-            if let Some(clean_json) = sse_line.strip_prefix("data: ") {
-                let clean_json = clean_json.trim();
-                if !clean_json.is_empty() {
-                    debug!("Worker {i} sends: {clean_json}");
-                    if let Err(e) = tx.send_async(clean_json.to_string()).await {
-                        error!("Worker {i}: failed to send to writer: {e}");
-                        break;
-                    }
-                }
-            }
+    for line in res.out.lines() {
+        let sse_line = line.trim();
+
+        let line_to_send = if res.sse {
+            sse_line
+                .strip_prefix("data: ")
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
         } else {
-            debug!("Worker {i} sends: {sse_line}");
-            if let Err(e) = tx.send_async(sse_line.to_string()).await {
+            Some(sse_line)
+        };
+
+        if let Some(line) = line_to_send {
+            if let Err(e) = tx.send_async(line.to_string()).await {
                 error!("Worker {i}: failed to send to writer: {e}");
                 break;
             }

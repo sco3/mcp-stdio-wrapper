@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 /// struct hold post result data
 pub struct PostResult {

@@ -2,8 +2,8 @@
 
 set -ueo pipefail
 
-MCPGATEWAY_BEARER_TOKEN="$(uv --project ~/prj/mcp-context-forge run -m mcpgateway.utils.create_jwt_token   --username admin@example.com   --exp 10080   --secret my-test-key 2>/dev/null)"
-echo -n $MCPGATEWAY_BEARER_TOKEN > ~/.local/mcpgateway-bearer-token.txt
+MCPGATEWAY_BEARER_TOKEN="$(uv --project ~/prj/mcp-context-forge run -m mcpgateway.utils.create_jwt_token --username admin@example.com --exp 10080 --secret my-test-key 2>/dev/null)"
+echo -n $MCPGATEWAY_BEARER_TOKEN >~/.local/mcpgateway-bearer-token.txt
 
 URL="http://localhost:8080/servers/9779b6698cbd4b4995ee04a4fab38737/mcp"
 
@@ -13,11 +13,11 @@ NOTIFY='{"jsonrpc": "2.0","method": "notifications/initialized"}'
 LIST='{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
 
 HEADERS=(
-  -H "Authorization: Bearer $MCPGATEWAY_BEARER_TOKEN"
-  -H "Content-Type: application/json; charset=utf-8"
-  -H "Accept: application/json, application/x-ndjson, text/event-stream"
+	-H "Authorization: Bearer $MCPGATEWAY_BEARER_TOKEN"
+	-H "Content-Type: application/json; charset=utf-8"
+	-H "Accept: application/json, application/x-ndjson, text/event-stream"
 )
 
 curl -v -N -D headers1.txt "$URL" "${HEADERS[@]}" -d "$INIT"
 curl -v -N -D headers2.txt "$URL" "${HEADERS[@]}" -d "$NOTIFY"
-curl -v -N -D headers2.txt "$URL" "${HEADERS[@]}" -d "$LIST"
+curl -v -N -D headers3.txt "$URL" "${HEADERS[@]}" -d "$LIST"

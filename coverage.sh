@@ -1,4 +1,3 @@
-
 cargo install cargo-llvm-cov
 rustup component add llvm-tools-preview
 
