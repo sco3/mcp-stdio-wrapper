@@ -1,6 +1,7 @@
 use crate::config_defaults::default_mcp_wrapper_log_level;
 
 use std::sync::{Mutex, Once};
+use tracing::level_filters;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
@@ -34,8 +35,13 @@ fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
         tracing_appender::non_blocking(std::io::stderr())
     };
 
-    let filter = EnvFilter::try_from_default_env() //
-        .unwrap_or_else(|_| EnvFilter::new(level));
+    let filter = EnvFilter::builder() //
+        .with_default_directive(
+            level
+                .parse()
+                .unwrap_or(level_filters::LevelFilter::OFF.into()),
+        )
+        .from_env_lossy();
 
     let layer = fmt::layer() //
         .with_ansi(false)

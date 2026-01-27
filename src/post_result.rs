@@ -6,4 +6,5 @@ pub struct PostResult {
     pub session_id: Option<String>,
     /// output text
     pub out: String,
+    pub sse: bool,
 }

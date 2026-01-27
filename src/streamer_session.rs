@@ -1,6 +1,6 @@
 use crate::streamer::{McpStreamClient, SID};
 use reqwest::Response;
-use tracing::error;
+use tracing::{debug, error};
 
 impl McpStreamClient {
     /// saves session id for future use
@@ -15,7 +15,7 @@ impl McpStreamClient {
             }
         } else {
             if !self.is_ready().await {
-                error!("Session id not found");
+                debug!("Session id not found");
             }
             None
         }
