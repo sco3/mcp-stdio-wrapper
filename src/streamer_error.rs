@@ -31,15 +31,20 @@ pub async fn mcp_error(
 
     let json_msg = match serde_json::to_string(&response) {
         Ok(msg) => msg,
-        Err(e) => json!({
-            "jsonrpc": "2.0",
-            "error": {"code": ErrorCode::InternalError,"message": e.to_string()},
-            "id": id
-        })
-        .to_string(),
+        Err(_e) => make_json_message(&id, error_msg),
     };
 
     if let Err(e) = tx.send_async(json_msg).await {
         error!("Worker {worker_id}: failed to send JSON-RPC response: {e}");
     }
+}
+
+#[must_use]
+pub fn make_json_message(id: &Id, error_msg: &str) -> String {
+    json!({
+        "jsonrpc": Version::V2,
+        "error": {"code": ErrorCode::InternalError,"message": error_msg},
+        "id": id
+    })
+    .to_string()
 }
