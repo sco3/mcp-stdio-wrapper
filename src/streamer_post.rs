@@ -54,6 +54,7 @@ impl McpStreamClient {
         debug!(
             "Server output length: {} starting with: {:.42} ...",
             result.len(),
+            result,
         );
         Ok(PostResult {
             out: result,

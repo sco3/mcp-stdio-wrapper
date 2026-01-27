@@ -2,7 +2,7 @@ use crate::post_result::PostResult;
 use flume::Sender;
 use tracing::{debug, error};
 /// writes worker output to stdout
-pub async fn write_output(i: usize, tx: &Sender<String>, line: &String, res: PostResult) {
+pub async fn write_output(i: usize, tx: &Sender<String>, res: PostResult) {
     // check every line
     for sse_line in res.out.lines() {
         let sse_line = sse_line.trim();

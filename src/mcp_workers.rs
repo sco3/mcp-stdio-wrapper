@@ -22,7 +22,7 @@ pub fn spawn_workers(
                 let response = client.stream_post(line.clone()).await;
                 match response {
                     Ok(res) => {
-                        write_output(i, &tx, &line, res).await;
+                        write_output(i, &tx, res).await;
                     }
                     Err(e) => {
                         error!("Worker {i}: Post failed: {e}");
