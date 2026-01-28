@@ -1,3 +1,4 @@
+use clap::Parser;
 use serde::Deserialize;
 use serde_json::Value;
 use std::time::Instant;
@@ -49,6 +50,28 @@ struct Step {
 struct AppCommand {
     bin: String,
     args: Vec<String>,
+}
+
+/// Benchmark tool for MCP stdio wrapper
+#[derive(Parser, Debug)]
+#[command(name = "bench")]
+#[command(about = "Run benchmarks against an MCP server", long_about = None)]
+struct Args {
+    /// Path to the benchmark configuration file (TOML format)
+    #[arg(value_name = "BENCH_CONFIG")]
+    bench_config: String,
+
+    /// Number of times to run the benchmark
+    #[arg(short, long, default_value_t = 1)]
+    iterations: usize,
+
+    /// Path to the binary to benchmark
+    #[arg(value_name = "BIN_PATH")]
+    bin_path: String,
+
+    /// Arguments to pass to the binary
+    #[arg(value_name = "ARGS", trailing_var_arg = true)]
+    bin_args: Vec<String>,
 }
 
 async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -110,51 +133,27 @@ async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<d
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = std::env::args().collect();
-    
-    if args.len() < 3 {
-        eprintln!("Usage: {} <bench_config.toml> <bin_path> [--iterations N] [args...]", args[0]);
-        eprintln!("  --iterations N: Run the benchmark N times (default: 1)");
-        std::process::exit(1);
-    }
-    
-    let bench_path = &args[1];
-    
-    // Parse iterations parameter
-    let mut iterations = 1;
-    let mut target_args_start = 3;
-    
-    if args.len() > 3 && (args[3] == "--iterations" || args[3] == "-n") {
-        if args.len() < 5 {
-            eprintln!("Error: --iterations requires a number argument");
-            std::process::exit(1);
-        }
-        iterations = args[4].parse::<usize>().unwrap_or_else(|_| {
-            eprintln!("Error: Invalid number for iterations: {}", args[4]);
-            std::process::exit(1);
-        });
-        target_args_start = 5;
-    }
+    let args = Args::parse();
     
     let target = AppCommand {
-        bin: args[2].clone(),
-        args: args[target_args_start..].to_vec(),
+        bin: args.bin_path,
+        args: args.bin_args,
     };
     
     // Run benchmark multiple times
-    for iteration in 1..=iterations {
-        if iterations > 1 {
+    for iteration in 1..=args.iterations {
+        if args.iterations > 1 {
             println!("\n{}", "=".repeat(80));
-            println!("Iteration {}/{}", iteration, iterations);
+            println!("Iteration {}/{}", iteration, args.iterations);
             println!("{}\n", "=".repeat(80));
         }
         
-        run_benchmark(target.clone(), bench_path).await?;
+        run_benchmark(target.clone(), &args.bench_config).await?;
     }
     
-    if iterations > 1 {
+    if args.iterations > 1 {
         println!("\n{}", "=".repeat(80));
-        println!("Completed {} iterations", iterations);
+        println!("Completed {} iterations", args.iterations);
         println!("{}", "=".repeat(80));
     }
     
