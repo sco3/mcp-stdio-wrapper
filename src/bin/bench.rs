@@ -116,22 +116,29 @@ async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<d
         // Send the JSON payload exactly as defined in TOML
         stdin.write_all(format!("{}\n", step.payload).as_bytes()).await?;
 
-        // Wait for Response
-        while let Some(line) = reader.next_line().await? {
-            let resp: Value = serde_json::from_str(&line)?;
-            
-            // Basic check: did we get the right ID back?
-            if resp.get("id").and_then(|v| v.as_i64()) == req_id {
-                let wall_duration_ns = start_wall.elapsed().as_nanos();
-                let cpu_duration_ns = get_cpu_time_ns() - start_cpu;
-                let status = if resp.get("error").is_some() { "ERROR" } else { "OK" };
-                
-                let wall_str = ns_to_ms_str(wall_duration_ns);
-                let cpu_str = ns_to_ms_str(cpu_duration_ns as u128);
-                
-                println!("{:<25} | {:<10} | {:<15} | {:<15}", step.name, status, wall_str, cpu_str);
-                break;
+        if let Some(current_req_id) = req_id {
+            // Wait for a response with a matching ID
+            while let Some(line) = reader.next_line().await? {
+                let resp: Value = serde_json::from_str(&line)?;
+                if resp.get("id").and_then(|v| v.as_i64()) == Some(current_req_id) {
+                    let wall_duration_ns = start_wall.elapsed().as_nanos();
+                    let cpu_duration_ns = get_cpu_time_ns() - start_cpu;
+                    let status = if resp.get("error").is_some() { "ERROR" } else { "OK" };
+
+                    let wall_str = ns_to_ms_str(wall_duration_ns);
+                    let cpu_str = ns_to_ms_str(cpu_duration_ns as u128);
+
+                    println!("{:<25} | {:<10} | {:<15} | {:<15}", step.name, status, wall_str, cpu_str);
+                    break;
+                }
             }
+        } else {
+            // No ID: this is a notification. It's fire and forget.
+            let wall_duration_ns = start_wall.elapsed().as_nanos();
+            let cpu_duration_ns = get_cpu_time_ns() - start_cpu;
+            let wall_str = ns_to_ms_str(wall_duration_ns);
+            let cpu_str = ns_to_ms_str(cpu_duration_ns as u128);
+            println!("{:<25} | {:<10} | {:<15} | {:<15}", step.name, "SENT", wall_str, cpu_str);
         }
     }
 

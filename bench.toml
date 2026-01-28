@@ -5,7 +5,7 @@ payload = { jsonrpc = "2.0", id = 1, method = "initialize", params = { protocolV
 
 [[steps]]
 name = "Initialized Notification"
-bench = false
+bench = true
 payload = { jsonrpc = "2.0", method = "notifications/initialized" }
 
 # The actual server-specific calls
