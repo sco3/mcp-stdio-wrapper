@@ -13,6 +13,9 @@ pub async fn write_output(i: usize, tx: &Sender<String>, res: PostResult) {
                 .map(str::trim)
                 .filter(|s| !s.is_empty())
         } else {
+            None // Directly return None if res.sse is false
+        };
+        } else {
             Some(sse_line)
         };
 
