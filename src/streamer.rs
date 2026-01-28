@@ -1,4 +1,5 @@
 use crate::config::Config;
+use reqwest::header::HeaderMap;
 use reqwest::Client;
 use tokio::sync::RwLock;
 
@@ -9,4 +10,5 @@ pub struct McpStreamClient {
     pub(crate) client: Client,
     pub(crate) session_id: RwLock<Option<String>>,
     pub(crate) config: Config,
+    pub(crate) static_headers: HeaderMap,
 }
