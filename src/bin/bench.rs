@@ -60,6 +60,10 @@ struct Args {
     #[arg(short, long, default_value_t = 1)]
     iterations: usize,
 
+    /// Reuse the same child process across all iterations instead of spawning a new one each time
+    #[arg(short, long)]
+    persistent: bool,
+
     /// Path to the binary to benchmark
     #[arg(value_name = "BIN_PATH")]
     bin_path: String,
@@ -69,26 +73,12 @@ struct Args {
     bin_args: Vec<String>,
 }
 
-async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    // 1. Load the benchmark sequence
-    let bench_str = std::fs::read_to_string(bench_path)?;
-    let config: BenchConfig = toml::from_str(&bench_str)?;
-
-    // 2. Spawn the MCP process
-    let mut child = Command::new(&target.bin)
-        .args(&target.args)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())  // IMPROVEMENT: Capture stderr for error diagnostics
-        .spawn()?;
-
-    let mut stdin = child.stdin.take().unwrap();
-    let mut reader = BufReader::new(child.stdout.take().unwrap()).lines();
-
-    println!("{:<25} | {:<10} | {:<15} | {:<15}", "Step Name", "Status", "Wall (ms)", "CPU (ms)");
-    println!("{}", "-".repeat(80));
-
-    for step in config.steps {
+async fn run_benchmark_steps(
+    stdin: &mut tokio::process::ChildStdin,
+    reader: &mut tokio::io::Lines<BufReader<tokio::process::ChildStdout>>,
+    config: &BenchConfig,
+) -> Result<(), Box<dyn std::error::Error>> {
+    for step in &config.steps {
         let req_id = step.payload.get("id").and_then(|v: &Value| v.as_i64());
         
         // Check if benchmarking is disabled for this step
@@ -142,6 +132,70 @@ async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<d
         }
     }
 
+    Ok(())
+}
+
+async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // Load the benchmark sequence
+    let bench_str = std::fs::read_to_string(bench_path)?;
+    let config: BenchConfig = toml::from_str(&bench_str)?;
+
+    // Spawn the MCP process
+    let mut child = Command::new(&target.bin)
+        .args(&target.args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+
+    let mut stdin = child.stdin.take().unwrap();
+    let mut reader = BufReader::new(child.stdout.take().unwrap()).lines();
+
+    println!("{:<25} | {:<10} | {:<15} | {:<15}", "Step Name", "Status", "Wall (ms)", "CPU (ms)");
+    println!("{}", "-".repeat(80));
+
+    run_benchmark_steps(&mut stdin, &mut reader, &config).await?;
+
+    child.kill().await?;
+    Ok(())
+}
+
+async fn run_benchmark_persistent(target: AppCommand, bench_path: &str, iterations: usize) -> Result<(), Box<dyn std::error::Error>> {
+    // Load the benchmark sequence
+    let bench_str = std::fs::read_to_string(bench_path)?;
+    let config: BenchConfig = toml::from_str(&bench_str)?;
+
+    // Spawn the MCP process once
+    let mut child = Command::new(&target.bin)
+        .args(&target.args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+
+    let mut stdin = child.stdin.take().unwrap();
+    let mut reader = BufReader::new(child.stdout.take().unwrap()).lines();
+
+    // Run benchmark multiple times with the same process
+    for iteration in 1..=iterations {
+        if iterations > 1 {
+            println!("\n{}", "=".repeat(80));
+            println!("Iteration {}/{}", iteration, iterations);
+            println!("{}\n", "=".repeat(80));
+        }
+
+        println!("{:<25} | {:<10} | {:<15} | {:<15}", "Step Name", "Status", "Wall (ms)", "CPU (ms)");
+        println!("{}", "-".repeat(80));
+
+        run_benchmark_steps(&mut stdin, &mut reader, &config).await?;
+    }
+
+    if iterations > 1 {
+        println!("\n{}", "=".repeat(80));
+        println!("Completed {} iterations", iterations);
+        println!("{}", "=".repeat(80));
+    }
+
     child.kill().await?;
     Ok(())
 }
@@ -155,21 +209,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         args: args.bin_args,
     };
     
-    // Run benchmark multiple times
-    for iteration in 1..=args.iterations {
-        if args.iterations > 1 {
-            println!("\n{}", "=".repeat(80));
-            println!("Iteration {}/{}", iteration, args.iterations);
-            println!("{}\n", "=".repeat(80));
+    if args.persistent {
+        // Persistent mode: reuse the same child process across all iterations
+        run_benchmark_persistent(target, &args.bench_config, args.iterations).await?;
+    } else {
+        // Default mode: spawn a new child process for each iteration
+        for iteration in 1..=args.iterations {
+            if args.iterations > 1 {
+                println!("\n{}", "=".repeat(80));
+                println!("Iteration {}/{}", iteration, args.iterations);
+                println!("{}\n", "=".repeat(80));
+            }
+            
+            run_benchmark(target.clone(), &args.bench_config).await?;
         }
         
-        run_benchmark(target.clone(), &args.bench_config).await?;
-    }
-    
-    if args.iterations > 1 {
-        println!("\n{}", "=".repeat(80));
-        println!("Completed {} iterations", args.iterations);
-        println!("{}", "=".repeat(80));
+        if args.iterations > 1 {
+            println!("\n{}", "=".repeat(80));
+            println!("Completed {} iterations", args.iterations);
+            println!("{}", "=".repeat(80));
+        }
     }
     
     Ok(())

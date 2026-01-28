@@ -6,7 +6,8 @@ source ./token-from-file.sh
 
 ./target/release/bench \
 	bench.toml \
-	--iterations 4 \
+	--persistent \
+	--iterations ${ITERS:=4} \
 	-- \
 	mcp_stdio_wrapper \
 	--url "http://localhost:8080/servers/9779b6698cbd4b4995ee04a4fab38737/mcp" \
