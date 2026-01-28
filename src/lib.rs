@@ -19,3 +19,4 @@ pub mod streamer_new;
 pub mod streamer_post;
 pub mod streamer_send;
 pub mod streamer_session;
+mod streamer_auth;

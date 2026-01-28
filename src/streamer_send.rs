@@ -27,7 +27,10 @@ impl McpStreamClient {
 
         if !self.config.mcp_auth.is_empty() {
             let auth_header = header::HeaderValue::from_str(&self.config.mcp_auth)
-                .map_err(|e| format!("Invalid auth header: {e}"))?;
+                .map_err(|e| {
+                    tracing::error!("Invalid auth header: {}", e); // Log the error
+                    format!("Invalid auth header: {e}")
+                })?;
             request = request.header(AUTHORIZATION, auth_header);
         }
 
