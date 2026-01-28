@@ -18,21 +18,10 @@ fn get_cpu_time_ns() -> i64 {
     }
 }
 
-// Format number with thousand separators
-fn format_with_separators(num: u128) -> String {
-    let s = num.to_string();
-    let mut result = String::new();
-    let mut count = 0;
-    
-    for c in s.chars().rev() {
-        if count > 0 && count % 3 == 0 {
-            result.push('_');
-        }
-        result.push(c);
-        count += 1;
-    }
-    
-    result.chars().rev().collect()
+// Convert nanoseconds to milliseconds with decimal precision
+fn ns_to_ms_str(ns: u128) -> String {
+    let ms = ns as f64 / 1_000_000.0;
+    format!("{:.3}", ms)
 }
 
 #[derive(Deserialize)]
@@ -44,6 +33,12 @@ struct BenchConfig {
 struct Step {
     name: String,
     payload: Value,
+    #[serde(default = "default_bench")]
+    bench: bool,
+}
+
+fn default_bench() -> bool {
+    true
 }
 
 #[derive(Deserialize, Clone)]
@@ -90,22 +85,36 @@ async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<d
     let mut stdin = child.stdin.take().unwrap();
     let mut reader = BufReader::new(child.stdout.take().unwrap()).lines();
 
-    println!("{:<25} | {:<10} | {:<15} | {:<15}", "Step Name", "Status", "Wall (μs)", "CPU (μs)");
+    println!("{:<25} | {:<10} | {:<15} | {:<15}", "Step Name", "Status", "Wall (ms)", "CPU (ms)");
     println!("{}", "-".repeat(80));
 
     for step in config.steps {
         let req_id = step.payload.get("id").and_then(|v: &Value| v.as_i64());
+        
+        // Check if benchmarking is disabled for this step
+        if !step.bench {
+            // Send the JSON payload without timing
+            stdin.write_all(format!("{}\n", step.payload).as_bytes()).await?;
+            println!("{:<25} | {:<10} | {:<15} | {:<15}", step.name, "SENT", "N/A", "N/A");
+            
+            // If it's a request (has ID), still need to consume the response
+            if req_id.is_some() {
+                while let Some(line) = reader.next_line().await? {
+                    let resp: Value = serde_json::from_str(&line)?;
+                    if resp.get("id").and_then(|v| v.as_i64()) == req_id {
+                        break;
+                    }
+                }
+            }
+            continue;
+        }
+        
+        // Benchmarking enabled - measure timing
         let start_wall = Instant::now();
         let start_cpu = get_cpu_time_ns();
 
         // Send the JSON payload exactly as defined in TOML
         stdin.write_all(format!("{}\n", step.payload).as_bytes()).await?;
-
-        // Handle Notifications (No response expected)
-        if req_id.is_none() {
-            println!("{:<25} | {:<10} | {:<15} | {:<15}", step.name, "SENT", "N/A", "N/A");
-            continue;
-        }
 
         // Wait for Response
         while let Some(line) = reader.next_line().await? {
@@ -113,13 +122,12 @@ async fn run_benchmark(target: AppCommand, bench_path: &str) -> Result<(), Box<d
             
             // Basic check: did we get the right ID back?
             if resp.get("id").and_then(|v| v.as_i64()) == req_id {
-                let wall_duration_us = start_wall.elapsed().as_micros();
+                let wall_duration_ns = start_wall.elapsed().as_nanos();
                 let cpu_duration_ns = get_cpu_time_ns() - start_cpu;
-                let cpu_duration_us = (cpu_duration_ns / 1_000) as u128;
                 let status = if resp.get("error").is_some() { "ERROR" } else { "OK" };
                 
-                let wall_str = format_with_separators(wall_duration_us);
-                let cpu_str = format_with_separators(cpu_duration_us);
+                let wall_str = ns_to_ms_str(wall_duration_ns);
+                let cpu_str = ns_to_ms_str(cpu_duration_ns as u128);
                 
                 println!("{:<25} | {:<10} | {:<15} | {:<15}", step.name, status, wall_str, cpu_str);
                 break;
