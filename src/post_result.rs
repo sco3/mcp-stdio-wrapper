@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 /// struct hold post result data
 pub struct PostResult {
@@ -6,4 +6,5 @@ pub struct PostResult {
     pub session_id: Option<String>,
     /// output text
     pub out: String,
+    pub sse: bool,
 }

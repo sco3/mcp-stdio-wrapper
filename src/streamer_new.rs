@@ -1,6 +1,5 @@
 use crate::config::Config;
 use crate::streamer::McpStreamClient;
-use reqwest::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use reqwest::{header, Client};
 use std::time::Duration;
 use tokio::sync::RwLock;
@@ -14,23 +13,8 @@ impl McpStreamClient {
     ///
     /// * invalid auth header
     pub fn try_new(config: Config) -> Result<Self, header::InvalidHeaderValue> {
-        let mut headers = header::HeaderMap::new();
-        headers.insert(
-            ACCEPT,
-            header::HeaderValue::from_static("application/json, text/event-stream"),
-        );
-        headers.insert(
-            CONTENT_TYPE,
-            header::HeaderValue::from_static("application/json"),
-        );
-
-        if !config.mcp_auth.is_empty() {
-            let auth_header = header::HeaderValue::from_str(&config.mcp_auth)?;
-            headers.insert(AUTHORIZATION, auth_header);
-        }
         let timeout = config.mcp_tool_call_timeout;
         let client = Client::builder()
-            .default_headers(headers)
             .timeout(Duration::from_secs(timeout))
             .build()
             .unwrap_or_else(|error| {

@@ -8,6 +8,7 @@ pub mod main_loop;
 pub mod mcp_workers;
 pub mod post_result;
 
+pub mod mcp_workers_write;
 pub mod stdio_process;
 pub mod stdio_reader;
 pub mod stdio_writer;
@@ -18,3 +19,4 @@ pub mod streamer_new;
 pub mod streamer_post;
 pub mod streamer_send;
 pub mod streamer_session;
+mod streamer_auth;

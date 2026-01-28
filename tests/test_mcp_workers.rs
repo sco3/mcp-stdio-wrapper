@@ -23,6 +23,7 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
         .mock("POST", "/")
         .with_status(200)
         .with_header("mcp-session-id", "session-42")
+        .with_header("content-type", "text/event-stream") // sse emulation
         .with_body(format!("data: {expected}"))
         .create_async()
         .await;

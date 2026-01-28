@@ -1,7 +1,8 @@
 use crate::post_result::PostResult;
 use crate::streamer::McpStreamClient;
 use futures::StreamExt;
-use tracing::error;
+use reqwest::header::CONTENT_TYPE;
+use tracing::{debug, error};
 
 impl McpStreamClient {
     #[allow(dead_code)]
@@ -30,6 +31,13 @@ impl McpStreamClient {
 
             return Err(format!("Server error {status}: {err_text}"));
         }
+
+        let is_sse = response
+            .headers()
+            .get(CONTENT_TYPE)
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|s| s.contains("text/event-stream"));
+
         let id = self.process_session_id(&response).await;
 
         let mut stream = response.bytes_stream();
@@ -43,10 +51,15 @@ impl McpStreamClient {
                 Err(e) => return Err(format!("Stream interrupted: {e}")),
             }
         }
-
+        debug!(
+            "Server output length: {} starting with: {:.42} ...",
+            result.len(),
+            result,
+        );
         Ok(PostResult {
             out: result,
             session_id: id,
+            sse: is_sse,
         })
     }
 }

@@ -1,1 +1,1 @@
-cargo clippy  "$@" -- -W clippy::pedantic 
+cargo clippy "$@" -- -W clippy::pedantic
