@@ -18,6 +18,6 @@ HEADERS=(
 	-H "Accept: application/json, application/x-ndjson, text/event-stream"
 )
 
-curl -v -N -D headers1.txt "$URL" "${HEADERS[@]}" -d "$INIT"
-curl -v -N -D headers2.txt "$URL" "${HEADERS[@]}" -d "$NOTIFY"
-curl -v -N -D headers3.txt "$URL" "${HEADERS[@]}" -d "$LIST"
+curl -v -N  "$URL" "${HEADERS[@]}" -d "$INIT"
+curl -v -N  "$URL" "${HEADERS[@]}" -d "$NOTIFY"
+curl -v -N  "$URL" "${HEADERS[@]}" -d "$LIST"

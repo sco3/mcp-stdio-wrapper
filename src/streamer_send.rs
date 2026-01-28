@@ -25,7 +25,7 @@ impl McpStreamClient {
             header::HeaderValue::from_static("application/json; charset=utf-8"),
         );
 
-        if !self.config.mcp_auth.is_empty() {
+        if self.is_auth() {
             let auth_header = header::HeaderValue::from_str(&self.config.mcp_auth)
                 .map_err(|e| {
                     tracing::error!("Invalid auth header: {}", e); // Log the error
