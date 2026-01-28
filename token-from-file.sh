@@ -11,4 +11,4 @@ if [ ! -f "$TOKEN_FILE" ]; then
 fi
 
 AUTH="Bearer $(tr -d '\r\n' <"$TOKEN_FILE")"
-ITERS=100
+ITERS=1
