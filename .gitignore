@@ -1,3 +1,7 @@
 /target
 .idea
 .project
+*.log
+*.pcap
+*.dump
+

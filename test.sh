@@ -9,12 +9,12 @@ EXE="mcp_stdio_wrapper --url ${MCP_URL:-http://localhost:8000/mcp}"
 # commands
 
 INIT='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0"}}}'
-NOTIFY='{"jsonrpc":"2.0","method":"notifications/initialized"}'
-LIST='{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+NOTIFY='{"jsonrpc":"2.0","id":2, "method":"notifications/initialized"}'
+LIST='{"jsonrpc":"2.0","id":3,"method":"tools/list"}'
 
 CALL='{
   "jsonrpc": "2.0",
-  "id": 3,
+  "id": 4,
   "method": "tools/call",
   "params": {
     "name": "say_hello",
