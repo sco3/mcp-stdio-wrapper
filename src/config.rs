@@ -21,7 +21,7 @@ pub struct Config {
 
     #[arg(
        long="log-level", 
-       default_value_t = crate::config_defaults::default_mcp_wrapper_log_level(), 
+       default_value_t = crate::config_defaults::default_mcp_wrapper_log_level(),
        env="LOG_LEVEL"
     )]
     pub mcp_wrapper_log_level: String,
@@ -33,7 +33,7 @@ pub struct Config {
 
     #[arg(
        long = "timeout", 
-       default_value_t = crate::config_defaults::default_mcp_tool_call_timeout(), 
+       default_value_t = crate::config_defaults::default_mcp_tool_call_timeout(),
        env="MCP_TOOL_CALL_TIMEOUT"
     )]
     pub mcp_tool_call_timeout: u64,
