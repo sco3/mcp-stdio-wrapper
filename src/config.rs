@@ -30,4 +30,8 @@ pub struct Config {
     #[serde(default = "crate::config_defaults::default_mcp_tool_call_timeout")]
     #[arg(long = "timeout", default_value_t = crate::config_defaults::default_mcp_tool_call_timeout())]
     pub mcp_tool_call_timeout: u64,
+
+    /// Content type header to send to server
+    #[arg(long, short = 'c', default_value = "application/json")]
+    pub mcp_content_type: String,
 }
