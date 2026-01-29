@@ -31,9 +31,10 @@ impl McpStreamClient {
             ACCEPT,
             HeaderValue::from_static("application/json, application/x-ndjson, text/event-stream"),
         );
+
         static_headers.insert(
             CONTENT_TYPE,
-            HeaderValue::from_static("application/json; charset=utf-8"),
+            HeaderValue::from_str(&config.mcp_content_type)?,
         );
 
         // Add authorization header if configured
