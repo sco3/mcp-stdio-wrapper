@@ -56,6 +56,8 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let cli = McpStreamClient::try_new(config)?;
+    println!("auth: {}", cli.is_auth());
+    assert!(cli.is_auth());
 
     let out = cli.stream_post(INIT).await;
     mock_init.assert_async().await;
