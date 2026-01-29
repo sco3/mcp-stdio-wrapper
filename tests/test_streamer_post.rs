@@ -52,6 +52,7 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
         mcp_wrapper_log_level: default_mcp_wrapper_log_level(),
         mcp_wrapper_log_file: None,
         mcp_tool_call_timeout: default_mcp_tool_call_timeout(),
+        mcp_content_type: "application/json".to_string(),
     };
 
     let cli = McpStreamClient::try_new(config)?;
