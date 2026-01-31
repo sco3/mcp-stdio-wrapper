@@ -1,5 +1,6 @@
 use jsonrpc_core::Id::Num;
-use mcp_stdio_wrapper::json_rpc_header::{find_first_id_actson, parse_id};
+use mcp_stdio_wrapper::json_rpc_find_id::parse_id;
+use mcp_stdio_wrapper::json_rpc_fast_find_id::find_first_id_actson;
 use std::fmt::Write;
 use std::time::Instant;
 
