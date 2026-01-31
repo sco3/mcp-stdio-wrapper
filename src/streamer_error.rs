@@ -1,4 +1,4 @@
-use crate::json_rpc_header::find_first_id;
+use crate::json_rpc_id_fast::parse_id_fast;
 use flume::Sender;
 use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
 use serde_json::json;
@@ -12,7 +12,7 @@ pub async fn mcp_error(
     error_msg: &str,
     tx: &Sender<String>,
 ) {
-    let id = find_first_id(json_str).unwrap_or_else(|| {
+    let id = parse_id_fast(json_str).unwrap_or_else(|| {
         tracing::debug!("Failed to parse json rpc id from '{json_str}'");
         Id::Null
     });
