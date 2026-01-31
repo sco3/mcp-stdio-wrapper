@@ -2,11 +2,6 @@
 .idea
 .project
 *.log
-<<<<<<< HEAD
 *.dump
 *.pcap
-=======
-*.pcap
-*.dump
-
->>>>>>> main
+.bob
