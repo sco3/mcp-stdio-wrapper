@@ -1,6 +1,6 @@
+use aws_smithy_json::deserialize::Token;
 use jsonrpc_core::Id;
 use serde::Deserialize;
-use aws_smithy_json::deserialize::Token;
 
 #[derive(Deserialize, Debug)]
 struct JsonRpcHeader {
@@ -15,7 +15,7 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
     Ok(header.id)
 }
 
-/// Finds the first "id" value from a JSON string using aws_smithy_json streaming parser.
+/// Finds the first "id" value from a JSON string using `aws_smithy_json` streaming parser.
 ///
 /// This function is optimized for performance on large JSON payloads by avoiding
 /// full deserialization.
@@ -27,13 +27,13 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
 #[must_use]
 pub fn find_first_id(json: &str) -> Option<Id> {
     let mut tokens = aws_smithy_json::deserialize::json_token_iter(json.as_bytes()).peekable();
-    
+
     // Expect start of object
     match tokens.next()? {
-        Ok(Token::StartObject { .. }) => {},
+        Ok(Token::StartObject { .. }) => {}
         _ => return None,
     }
-    
+
     // Iterate through object keys
     while let Some(token) = tokens.next() {
         match token {
@@ -45,21 +45,15 @@ pub fn find_first_id(json: &str) -> Option<Id> {
                         if let Some(Ok(value_token)) = tokens.next() {
                             return match value_token {
                                 Token::ValueNumber { value, .. } => {
-                                    // Use to_f64_lossy to convert Number to f64
-                                    let f: f64 = value.to_f64_lossy();
-                                    if f >= 0.0 && f.fract() == 0.0 && f <= u64::MAX as f64 {
-                                        Some(Id::Num(f as u64))
-                                    } else {
-                                        None
-                                    }
-                                },
+                                    value.try_into().ok().map(Id::Num)
+                                }
                                 Token::ValueString { value, .. } => {
                                     if let Ok(s) = value.to_unescaped() {
                                         Some(Id::Str(s.as_ref().to_string()))
                                     } else {
                                         None
                                     }
-                                },
+                                }
                                 Token::ValueNull { .. } => Some(Id::Null),
                                 _ => None,
                             };
@@ -69,12 +63,11 @@ pub fn find_first_id(json: &str) -> Option<Id> {
                 }
                 // Skip the value for this key
                 tokens.next();
-            },
+            }
             Ok(Token::EndObject { .. }) => break,
             Err(_) => return None,
-            _ => {},
+            _ => {}
         }
     }
-    
     None
 }
