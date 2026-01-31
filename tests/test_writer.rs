@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::stdio_writer::spawn_writer;
 use tokio_test::io::Builder;
@@ -9,12 +10,12 @@ use tokio_test::io::Builder;
 #[tokio::test]
 pub async fn test_writer() -> Result<(), Box<dyn std::error::Error>> {
     init_logger(Some("debug"), None);
-    let (tx, rx) = flume::unbounded::<String>();
+    let (tx, rx) = flume::unbounded::<Bytes>();
 
     let out = Builder::new().write(b"test\n").build();
 
     let writer = spawn_writer(rx, out);
-    tx.send_async("test".to_string()).await?;
+    tx.send_async(Bytes::from("test")).await?;
     drop(tx);
     writer.await?;
     Ok(())

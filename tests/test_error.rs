@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use flume::Receiver;
 use jsonrpc_core::ErrorCode;
 use mcp_stdio_wrapper::logger::init_logger;
@@ -59,9 +60,10 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn verify(rx: &Receiver<String>, expected: &Value) {
+async fn verify(rx: &Receiver<Bytes>, expected: &Value) {
     let msg = rx.recv_async().await.expect("receiving error");
-    let actual = serde_json::from_str::<Value>(&msg).expect("deserializing error");
+    let msg_str = String::from_utf8_lossy(&msg);
+    let actual = serde_json::from_str::<Value>(&msg_str).expect("deserializing error");
     println!("{actual}");
     assert_eq!(actual, *expected);
 }

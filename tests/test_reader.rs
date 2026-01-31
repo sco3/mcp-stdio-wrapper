@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::stdio_reader::spawn_reader;
 #[tokio::test]
@@ -12,7 +13,7 @@ use mcp_stdio_wrapper::stdio_reader::spawn_reader;
 async fn test_reader() {
     init_logger(Some("debug"), None);
     for i in [true, false] {
-        let (tx, rx) = flume::unbounded::<String>();
+        let (tx, rx) = flume::unbounded::<Bytes>();
 
         let stdio = tokio_test::io::Builder::new()
             .read(b"line1\n")
@@ -23,7 +24,7 @@ async fn test_reader() {
         let handle = spawn_reader(tx, stdio);
 
         let first = rx.recv_async().await.expect("Should receive line1");
-        assert_eq!(first, "line1");
+        assert_eq!(first, Bytes::from("line1"));
 
         if i {
             // test termination
@@ -31,7 +32,7 @@ async fn test_reader() {
         } else {
             // test eof
             let second = rx.recv_async().await.expect("Should receive line2");
-            assert_eq!(second, "line2");
+            assert_eq!(second, Bytes::from("line2"));
         }
 
         let _ = handle.await;

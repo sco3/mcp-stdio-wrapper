@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use crate::json_rpc_id_fast::parse_id_fast;
 use flume::Sender;
 use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
@@ -10,7 +11,7 @@ pub async fn mcp_error(
     worker_id: &usize,
     json_str: &str,
     error_msg: &str,
-    tx: &Sender<String>,
+    tx: &Sender<Bytes>,
 ) {
     let id = parse_id_fast(json_str).unwrap_or_else(|| {
         tracing::debug!("Failed to parse json rpc id from '{json_str}'");
@@ -39,7 +40,7 @@ pub async fn mcp_error(
         .to_string(),
     };
 
-    if let Err(e) = tx.send_async(json_msg).await {
+    if let Err(e) = tx.send_async(Bytes::from(json_msg)).await {
         error!("Worker {worker_id}: failed to send JSON-RPC response: {e}");
     }
 }
