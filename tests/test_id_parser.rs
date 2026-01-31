@@ -1,5 +1,6 @@
 use jsonrpc_core::Id::Num;
-use mcp_stdio_wrapper::json_rpc_header::{find_first_id_actson, parse_id};
+use mcp_stdio_wrapper::json_rpc_id::parse_id;
+use mcp_stdio_wrapper::json_rpc_id_fast::parse_id_fast;
 use std::fmt::Write;
 use std::time::Instant;
 
@@ -38,6 +39,13 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(id_short, 123);
     println!("Short JSON parse time: {duration_short:?}");
 
+    // --- Benchmark Short ---
+    let start_short_fast = Instant::now();
+    let id_short_fast = parse_id_fast(short_json).unwrap();
+    let duration_short_fast = start_short_fast.elapsed();
+    assert_eq!(id_short_fast, Num(123));
+    println!("Short JSON parse time (actson): {duration_short_fast:?}");
+
     let start_large = Instant::now();
     let id_large = parse_id(&large_data)?;
 
@@ -46,21 +54,20 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     println!("Large JSON parse time: {duration_large:?}");
     // --- Benchmark Large with actson ---
     let start_large_actson = Instant::now();
-    let id_large_actson =
-        find_first_id_actson(&large_data).expect("Failed to parse large with actson");
+    let id_large_actson = parse_id_fast(&large_data).expect("Failed to parse large with actson");
     let duration_large_actson = start_large_actson.elapsed();
     assert_eq!(id_large_actson, Num(999));
 
     println!("Large JSON parse time (actson): {duration_large_actson:?}");
 
-    let found = find_first_id_actson("{}");
+    let found = parse_id_fast("{}");
     assert!(found.is_none());
 
-    let found = find_first_id_actson("");
+    let found = parse_id_fast("");
     assert!(found.is_none());
 
     let false_id = r#"{"some_key": "this value contains \"id\": 123", "id": 456}"#;
-    let found = find_first_id_actson(false_id).unwrap();
+    let found = parse_id_fast(false_id).unwrap();
     assert_eq!(found, Num(456));
     Ok(())
 }
