@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use crate::post_result::PostResult;
 use crate::streamer::McpStreamClient;
 use futures::StreamExt;
@@ -12,9 +13,9 @@ impl McpStreamClient {
     /// This function will return an error if the `reqwest` fails
     pub async fn stream_post(
         &self,
-        payload: impl Into<reqwest::Body>,
+        payload: Bytes,
     ) -> Result<PostResult, String> {
-        let mut result = String::new();
+        let mut result = Vec::new();
 
         let response = self.prepare_and_send_request(payload).await?;
 
@@ -45,12 +46,12 @@ impl McpStreamClient {
         while let Some(item) = stream.next().await {
             match item {
                 Ok(bytes) => {
-                    let chunk = String::from_utf8_lossy(&bytes);
-                    result.push_str(&chunk);
+                    result.extend_from_slice(&bytes);
                 }
                 Err(e) => return Err(format!("Stream interrupted: {e}")),
             }
         }
+        let result = String::from_utf8_lossy(&result).into_owned();
         debug!(
             "Server output length: {} starting with: {:.42} ...",
             result.len(),

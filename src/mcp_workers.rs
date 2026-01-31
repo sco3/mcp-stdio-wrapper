@@ -19,15 +19,15 @@ pub fn spawn_workers(
 
         tokio::spawn(async move {
             while let Ok(line) = rx.recv_async().await {
-                let line_str = String::from_utf8_lossy(&line);
-                debug!("Worker {i} processing message: {line_str}");
-                let response = client.stream_post(line_str.to_string()).await;
+                debug!("Worker {i} processing message: {}", String::from_utf8_lossy(&line));
+                let response = client.stream_post(line.clone()).await;
                 match response {
                     Ok(res) => {
                         write_output(i, &tx, res).await;
                     }
                     Err(e) => {
                         error!("Worker {i}: Post failed: {e}");
+                        let line_str = String::from_utf8_lossy(&line);
                         mcp_error(&i, &line_str, &e, &tx).await;
                     }
                 }
