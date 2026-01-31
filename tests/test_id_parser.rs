@@ -8,7 +8,7 @@ use std::time::Instant;
 /// test id parsing
 /// # Errors
 /// errors mean test failure
-fn test_parse_id_performance() {
+fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     // 1. Setup Short Input
     let short_json = r#"{"jsonrpc": "2.0", "method": "test", "id": 123}"#;
 
@@ -33,17 +33,24 @@ fn test_parse_id_performance() {
 
     // --- Benchmark Short ---
     let start_short = Instant::now();
-    let id_short = parse_id(short_json).expect("Failed to parse short");
+    let id_short = parse_id(short_json)?;
     let duration_short = start_short.elapsed();
     assert_eq!(id_short, 123);
+    println!("Short JSON parse time: {duration_short:?}");
 
+    let start_large_actson = Instant::now();
+    let id_large = parse_id(&large_data)?;
+
+    assert_eq!(id_large, 999);
+    let duration_large = start_large_actson.elapsed();
+    println!("Large JSON parse time: {duration_large:?}");
     // --- Benchmark Large with actson ---
     let start_large_actson = Instant::now();
-    let id_large_actson = find_first_id_actson(&large_data).expect("Failed to parse large with actson");
+    let id_large_actson =
+        find_first_id_actson(&large_data).expect("Failed to parse large with actson");
     let duration_large_actson = start_large_actson.elapsed();
     assert_eq!(id_large_actson, Num(999));
 
-    println!("Short JSON parse time: {duration_short:?}");
     println!("Large JSON parse time (actson): {duration_large_actson:?}");
 
     let found = find_first_id_actson("{}");
@@ -55,4 +62,5 @@ fn test_parse_id_performance() {
     let false_id = r#"{"some_key": "this value contains \"id\": 123", "id": 456}"#;
     let found = find_first_id_actson(false_id).unwrap();
     assert_eq!(found, Num(456));
+    Ok(())
 }
