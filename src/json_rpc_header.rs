@@ -1,4 +1,5 @@
-use aws_smithy_json::deserialize::Token;
+use actson::feeder::SliceJsonFeeder;
+use actson::{JsonEvent, JsonParser};
 use jsonrpc_core::Id;
 use serde::Deserialize;
 
@@ -15,59 +16,71 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
     Ok(header.id)
 }
 
-/// Finds the first "id" value from a JSON string using `aws_smithy_json` streaming parser.
+
+
+/// Finds the first "id" value from a JSON string using `actson` streaming parser.
 ///
-/// This function is optimized for performance on large JSON payloads by avoiding
-/// full deserialization.
+/// This function is optimized for performance on large JSON payloads by using
+/// event-based streaming parsing that avoids full deserialization.
 ///
 /// # Returns
 ///
 /// * `Some(Id)` containing the `id` if found.
 /// * `None` if the JSON is invalid, not an object, or does not contain an "id" key.
 #[must_use]
-pub fn find_first_id(json: &str) -> Option<Id> {
-    let mut tokens = aws_smithy_json::deserialize::json_token_iter(json.as_bytes()).peekable();
-
-    // Expect start of object
-    match tokens.next()? {
-        Ok(Token::StartObject { .. }) => {}
-        _ => return None,
-    }
-
-    // Iterate through object keys
-    while let Some(token) = tokens.next() {
-        match token {
-            Ok(Token::ObjectKey { key, .. }) => {
-                // Convert EscapedStr to string for comparison
-                if let Ok(key_str) = key.to_unescaped() {
-                    if key_str.as_ref() == "id" {
-                        // Next token should be the value
-                        if let Some(Ok(value_token)) = tokens.next() {
-                            return match value_token {
-                                Token::ValueNumber { value, .. } => {
-                                    value.try_into().ok().map(Id::Num)
-                                }
-                                Token::ValueString { value, .. } => {
-                                    if let Ok(s) = value.to_unescaped() {
-                                        Some(Id::Str(s.as_ref().to_string()))
-                                    } else {
-                                        None
-                                    }
-                                }
-                                Token::ValueNull { .. } => Some(Id::Null),
-                                _ => None,
-                            };
+pub fn find_first_id_actson(json: &str) -> Option<Id> {
+    let feeder = SliceJsonFeeder::new(json.as_bytes());
+    let mut parser = JsonParser::new(feeder);
+    
+    let mut in_object = false;
+    let mut found_id_field = false;
+    
+    while let Some(event) = parser.next_event().ok()? {
+        match event {
+            JsonEvent::StartObject => {
+                in_object = true;
+            }
+            JsonEvent::FieldName => {
+                if in_object {
+                    if let Ok(field_name) = parser.current_str() {
+                        if field_name == "id" {
+                            found_id_field = true;
                         }
-                        return None;
                     }
                 }
-                // Skip the value for this key
-                tokens.next();
             }
-            Ok(Token::EndObject { .. }) => break,
-            Err(_) => return None,
+            JsonEvent::ValueInt => {
+                if found_id_field {
+                    if let Ok(num_str) = parser.current_str() {
+                        if let Ok(num) = num_str.parse::<u64>() {
+                            return Some(Id::Num(num));
+                        }
+                    }
+                    return None;
+                }
+            }
+            JsonEvent::ValueString => {
+                if found_id_field {
+                    if let Ok(s) = parser.current_str() {
+                        return Some(Id::Str(s.to_string()));
+                    }
+                    return None;
+                }
+            }
+            JsonEvent::ValueNull => {
+                if found_id_field {
+                    return Some(Id::Null);
+                }
+            }
+            JsonEvent::EndObject => {
+                if in_object && !found_id_field {
+                    return None;
+                }
+            }
+
             _ => {}
         }
     }
+    
     None
 }
