@@ -38,11 +38,11 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(id_short, 123);
     println!("Short JSON parse time: {duration_short:?}");
 
-    let start_large_actson = Instant::now();
+    let start_large = Instant::now();
     let id_large = parse_id(&large_data)?;
 
     assert_eq!(id_large, 999);
-    let duration_large = start_large_actson.elapsed();
+    let duration_large = start_large.elapsed();
     println!("Large JSON parse time: {duration_large:?}");
     // --- Benchmark Large with actson ---
     let start_large_actson = Instant::now();
