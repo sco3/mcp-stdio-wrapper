@@ -1,6 +1,6 @@
 use jsonrpc_core::Id;
 use serde::Deserialize;
-use struson::reader::{JsonReader, JsonStreamReader};
+use aws_smithy_json::deserialize::Token;
 
 #[derive(Deserialize, Debug)]
 struct JsonRpcHeader {
@@ -15,31 +15,66 @@ pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> 
     Ok(header.id)
 }
 
-/// Finds the first "id" value from a JSON string using a streaming parser.
+/// Finds the first "id" value from a JSON string using aws_smithy_json streaming parser.
 ///
 /// This function is optimized for performance on large JSON payloads by avoiding
 /// full deserialization.
 ///
 /// # Returns
 ///
-/// * `Some(Value)` containing the `id` if found.
+/// * `Some(Id)` containing the `id` if found.
 /// * `None` if the JSON is invalid, not an object, or does not contain an "id" key.
 #[must_use]
 pub fn find_first_id(json: &str) -> Option<Id> {
-    let mut reader = JsonStreamReader::new(json.as_bytes());
-
-    if reader.begin_object().is_err() {
-        return None;
+    let mut tokens = aws_smithy_json::deserialize::json_token_iter(json.as_bytes()).peekable();
+    
+    // Expect start of object
+    match tokens.next()? {
+        Ok(Token::StartObject { .. }) => {},
+        _ => return None,
     }
-
-    while let Ok(true) = reader.has_next() {
-        let name = reader.next_name().ok()?;
-        if name == "id" {
-            // Deserialize directly into the jsonrpc_core::Id type
-            let id: Id = reader.deserialize_next().ok()?;
-            return Some(id);
+    
+    // Iterate through object keys
+    while let Some(token) = tokens.next() {
+        match token {
+            Ok(Token::ObjectKey { key, .. }) => {
+                // Convert EscapedStr to string for comparison
+                if let Ok(key_str) = key.to_unescaped() {
+                    if key_str.as_ref() == "id" {
+                        // Next token should be the value
+                        if let Some(Ok(value_token)) = tokens.next() {
+                            return match value_token {
+                                Token::ValueNumber { value, .. } => {
+                                    // Use to_f64_lossy to convert Number to f64
+                                    let f: f64 = value.to_f64_lossy();
+                                    if f >= 0.0 && f.fract() == 0.0 && f <= u64::MAX as f64 {
+                                        Some(Id::Num(f as u64))
+                                    } else {
+                                        None
+                                    }
+                                },
+                                Token::ValueString { value, .. } => {
+                                    if let Ok(s) = value.to_unescaped() {
+                                        Some(Id::Str(s.as_ref().to_string()))
+                                    } else {
+                                        None
+                                    }
+                                },
+                                Token::ValueNull { .. } => Some(Id::Null),
+                                _ => None,
+                            };
+                        }
+                        return None;
+                    }
+                }
+                // Skip the value for this key
+                tokens.next();
+            },
+            Ok(Token::EndObject { .. }) => break,
+            Err(_) => return None,
+            _ => {},
         }
-        reader.skip_value().ok()?;
     }
+    
     None
 }
