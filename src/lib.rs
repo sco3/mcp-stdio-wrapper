@@ -3,7 +3,8 @@ pub mod config_defaults;
 pub mod config_from_cli;
 pub mod config_from_env;
 pub mod json_field_finder;
-pub mod json_rpc_find_id;
+pub mod json_rpc_find_value;
+
 pub mod logger;
 pub mod main_loop;
 pub mod mcp_workers;

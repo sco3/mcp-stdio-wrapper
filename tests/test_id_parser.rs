@@ -1,8 +1,25 @@
 use jsonrpc_core::Id::Num;
-use mcp_stdio_wrapper::json_rpc_find_id::parse_id;
 use mcp_stdio_wrapper::json_field_finder::find_first_field;
+use mcp_stdio_wrapper::json_rpc_find_value::find_json_value;
 use std::fmt::Write;
 use std::time::Instant;
+
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug)]
+struct JsonRpcHeader {
+    id: serde_json::Value,
+}
+
+/// Parses string for jsonrpc id using serde
+///
+/// # Errors
+///
+/// Returns an error if the string is not valid JSON, or if the `id` field is missing.
+pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> {
+    let header: JsonRpcHeader = serde_json::from_str(json_str)?;
+    Ok(header.id)
+}
 
 #[cfg(test)]
 #[test]
@@ -40,12 +57,16 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     println!("Short JSON parse time: {duration_short:?}");
 
     let start_short_actson = Instant::now();
-    let id_short_actson = find_first_field(short_json, "id").unwrap();
+
+    let id_short_actson = find_json_value(
+        short_json.as_ref(), //
+        "id",
+    )
+    .unwrap();
+
     let duration_short_actson = start_short_actson.elapsed();
-    assert_eq!(id_short_actson, Num(123));
+    assert_eq!(id_short_actson, b"123");
     println!("Short JSON parse time (actson): {duration_short_actson:?}");
-
-
 
     let start_large = Instant::now();
     let id_large = parse_id(&large_data)?;
@@ -55,10 +76,9 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     println!("Large JSON parse time: {duration_large:?}");
     // --- Benchmark Large with actson ---
     let start_large_actson = Instant::now();
-    let id_large_actson =
-        find_first_field(&large_data, "id").expect("Failed to parse large with actson");
+    let id_large_actson = find_json_value(large_data.as_ref(), "id").unwrap();
     let duration_large_actson = start_large_actson.elapsed();
-    assert_eq!(id_large_actson, Num(999));
+    assert_eq!(id_large_actson, b"999");
 
     println!("Large JSON parse time (actson): {duration_large_actson:?}");
 
