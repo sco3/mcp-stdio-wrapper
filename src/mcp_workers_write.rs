@@ -6,7 +6,7 @@ pub async fn write_output(i: usize, tx: &Sender<String>, res: PostResult) {
     // check every line
     for line in res.out.lines() {
         let line = if res.sse {
-            line.strip_prefix("data: ").map(str::trim).unwrap_or("")
+            line.strip_prefix("data: ").map_or("", str::trim)
         } else {
             line.trim()
         };
