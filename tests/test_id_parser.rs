@@ -1,14 +1,32 @@
 use jsonrpc_core::Id::Num;
-use mcp_stdio_wrapper::json_rpc_header::{find_first_id, parse_id};
+use mcp_stdio_wrapper::json_field_finder::find_first_field;
+use mcp_stdio_wrapper::json_rpc_find_value::find_json_value;
 use std::fmt::Write;
 use std::time::Instant;
+
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug)]
+struct JsonRpcHeader {
+    id: serde_json::Value,
+}
+
+/// Parses string for jsonrpc id using serde
+///
+/// # Errors
+///
+/// Returns an error if the string is not valid JSON, or if the `id` field is missing.
+pub fn parse_id(json_str: &str) -> Result<serde_json::Value, serde_json::Error> {
+    let header: JsonRpcHeader = serde_json::from_str(json_str)?;
+    Ok(header.id)
+}
 
 #[cfg(test)]
 #[test]
 /// test id parsing
 /// # Errors
 /// errors mean test failure
-fn test_parse_id_performance() {
+fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     // 1. Setup Short Input
     let short_json = r#"{"jsonrpc": "2.0", "method": "test", "id": 123}"#;
 
@@ -33,26 +51,45 @@ fn test_parse_id_performance() {
 
     // --- Benchmark Short ---
     let start_short = Instant::now();
-    let id_short = parse_id(short_json).expect("Failed to parse short");
+    let id_short = parse_id(short_json)?;
     let duration_short = start_short.elapsed();
     assert_eq!(id_short, 123);
-
-    // --- Benchmark Large ---
-    let start_large = Instant::now();
-    let id_large = find_first_id(&large_data).expect("Failed to parse large");
-    let duration_large = start_large.elapsed();
-    assert_eq!(id_large, Num(999));
-
     println!("Short JSON parse time: {duration_short:?}");
-    println!("Large JSON parse time: {duration_large:?}");
 
-    let found = find_first_id("{}");
+    let start_short_actson = Instant::now();
+
+    let id_short_actson = find_json_value(
+        short_json.as_ref(), //
+        "id",
+    )
+    .unwrap();
+
+    let duration_short_actson = start_short_actson.elapsed();
+    assert_eq!(id_short_actson, b"123");
+    println!("Short JSON parse time (actson): {duration_short_actson:?}");
+
+    let start_large = Instant::now();
+    let id_large = parse_id(&large_data)?;
+
+    let duration_large = start_large.elapsed();
+    assert_eq!(id_large, 999);
+    println!("Large JSON parse time: {duration_large:?}");
+    // --- Benchmark Large with actson ---
+    let start_large_actson = Instant::now();
+    let id_large_actson = find_json_value(large_data.as_ref(), "id").unwrap();
+    let duration_large_actson = start_large_actson.elapsed();
+    assert_eq!(id_large_actson, b"999");
+
+    println!("Large JSON parse time (actson): {duration_large_actson:?}");
+
+    let found = find_first_field("{}", "id");
     assert!(found.is_none());
 
-    let found = find_first_id("");
+    let found = find_first_field("", "id");
     assert!(found.is_none());
 
     let false_id = r#"{"some_key": "this value contains \"id\": 123", "id": 456}"#;
-    let found = find_first_id(false_id).unwrap();
+    let found = find_first_field(false_id, "id").unwrap();
     assert_eq!(found, Num(456));
+    Ok(())
 }
