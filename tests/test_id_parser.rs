@@ -39,11 +39,11 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(id_short, 123);
     println!("Short JSON parse time: {duration_short:?}");
 
-    let start_short = Instant::now();
-    let id_short = parse_id(short_json)?;
-    let duration_short = start_short.elapsed();
-    assert_eq!(id_short, 123);
-    println!("Short JSON parse time (actson): {duration_short:?}");
+    let start_short_actson = Instant::now();
+    let id_short_actson = find_first_field(short_json, "id").unwrap();
+    let duration_short_actson = start_short_actson.elapsed();
+    assert_eq!(id_short_actson, Num(123));
+    println!("Short JSON parse time (actson): {duration_short_actson:?}");
 
 
 
