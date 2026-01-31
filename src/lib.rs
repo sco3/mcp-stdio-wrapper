@@ -4,7 +4,6 @@ pub mod config_from_cli;
 pub mod config_from_env;
 pub mod json_rpc_fast_find_id;
 pub mod json_rpc_find_id;
-mod json_rpc_fast_skip_object;
 pub mod logger;
 pub mod main_loop;
 pub mod mcp_workers;
