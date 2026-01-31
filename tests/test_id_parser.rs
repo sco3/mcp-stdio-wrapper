@@ -32,32 +32,32 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     println!("Large JSON size: {} MB", large_data.len() / 1_024 / 1_024);
     //println!("Large JSON: {}", large_data);
 
-    // --- Benchmark Short ---
+    // --- Benchmark Short
     let start_short = Instant::now();
     let id_short = parse_id(short_json)?;
     let duration_short = start_short.elapsed();
     assert_eq!(id_short, 123);
     println!("Short JSON parse time: {duration_short:?}");
 
-    // --- Benchmark Short ---
+    // --- Benchmark Short actson
     let start_short_fast = Instant::now();
     let id_short_fast = parse_id_fast(short_json).unwrap();
     let duration_short_fast = start_short_fast.elapsed();
     assert_eq!(id_short_fast, Num(123));
     println!("Short JSON parse time (actson): {duration_short_fast:?}");
 
+    // --- Benchmark Large
     let start_large = Instant::now();
     let id_large = parse_id(&large_data)?;
-
     let duration_large = start_large.elapsed();
     assert_eq!(id_large, 999);
     println!("Large JSON parse time: {duration_large:?}");
-    // --- Benchmark Large with actson ---
+
+    // --- Benchmark Large with actson
     let start_large_actson = Instant::now();
     let id_large_actson = parse_id_fast(&large_data).expect("Failed to parse large with actson");
     let duration_large_actson = start_large_actson.elapsed();
     assert_eq!(id_large_actson, Num(999));
-
     println!("Large JSON parse time (actson): {duration_large_actson:?}");
 
     let found = parse_id_fast("{}");
