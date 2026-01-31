@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
 use mockito::Server;
@@ -19,7 +20,7 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::from_cli(["test", "--url", url.as_str()]);
     let cli = McpStreamClient::try_new(config)?;
 
-    let out = cli.stream_post("ini").await;
+    let out = cli.stream_post(Bytes::from("ini")).await;
     assert!(out.is_err());
     mock_init.assert_async().await;
     Ok(())

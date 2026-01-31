@@ -3,10 +3,12 @@ use actson::{JsonEvent, JsonParser};
 use jsonrpc_core::Id;
 
 
+#[must_use] 
 pub fn parse_id_fast(json: &str)->Option<Id> {
     parse_field_fast(json,"id")
     
 }
+#[must_use] 
 pub fn parse_field_fast(json: &str, field_name: &str) -> Option<Id> {
     let feeder = SliceJsonFeeder::new(json.as_bytes());
     let mut parser = JsonParser::new(feeder);
@@ -32,7 +34,7 @@ pub fn parse_field_fast(json: &str, field_name: &str) -> Option<Id> {
                 if depth == 1
                     && parser
                         .current_str()
-                        .map_or(false, |name| name == field_name)
+                        .is_ok_and(|name| name == field_name)
                 {
                     // Get the very next event (the value)
                     if let Ok(Some(val_event)) = parser.next_event() {

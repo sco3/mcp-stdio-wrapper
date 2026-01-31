@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use clap::Parser;
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::logger::init_logger;
@@ -16,7 +17,7 @@ async fn main() {
         Ok(client) => {
             debug!("Start {client:?}");
 
-            let result = client.stream_post(INIT).await;
+            let result = client.stream_post(Bytes::from(INIT)).await;
             match result {
                 Ok(post_data) => {
                     debug!("Post {post_data:?}");
