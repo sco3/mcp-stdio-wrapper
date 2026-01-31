@@ -1,5 +1,7 @@
+use crate::json_rpc_event::process_event;
+use crate::json_rpc_value::get_value;
 use actson::feeder::SliceJsonFeeder;
-use actson::{JsonEvent, JsonParser};
+use actson::JsonParser;
 use jsonrpc_core::Id;
 use serde::Deserialize;
 
@@ -35,51 +37,15 @@ pub fn find_first_id_actson(json: &str) -> Option<Id> {
 
     while let Some(event) = parser.next_event().ok()? {
         if is_next_val_id {
-            match event {
-                JsonEvent::ValueInt => {
-                    if let Ok(num_str) = parser.current_str() {
-                        if let Ok(num) = num_str.parse::<u64>() {
-                            return Some(Id::Num(num));
-                        }
-                    }
-                    return None;
-                }
-                JsonEvent::ValueString => {
-                    if let Ok(s) = parser.current_str() {
-                        return Some(Id::Str(s.to_string()));
-                    }
-                    return None;
-                }
-                JsonEvent::ValueNull => {
-                    return Some(Id::Null);
-                }
-                // Any other value type for "id" is invalid for JSON-RPC.
-                _ => return None,
-            }
+            return get_value(&mut parser, event);
         }
-
-        match event {
-            JsonEvent::StartObject => {
-                depth += 1;
-            }
-            JsonEvent::EndObject => {
-                depth -= 1;
-                if depth == 0 {
-                    // Finished the top-level object. If we haven't returned yet,
-                    // there was no "id" or it was invalid.
-                    return None;
-                }
-            }
-            JsonEvent::FieldName => {
-                if depth == 1 {
-                    if let Ok(field_name) = parser.current_str() {
-                        if field_name == "id" {
-                            is_next_val_id = true;
-                        }
-                    }
-                }
-            }
-            _ => {}
+        if let Some(value) = process_event(
+            &mut parser, //
+            &mut depth,
+            &mut is_next_val_id,
+            event,
+        ) {
+            return value;
         }
     }
 
