@@ -14,7 +14,7 @@ pub async fn mcp_error(
     tx: &Sender<Bytes>,
 ) {
     let id = parse_id_fast(json_str);
-
+    tracing::debug!("Json rpc id:{id:?}");
     let error_obj = Error {
         code: ErrorCode::InternalError,
         message: error_msg.to_string(),

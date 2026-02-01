@@ -8,9 +8,9 @@ use tracing::{debug, error};
 
 impl McpStreamClient {
     #[allow(dead_code)]
-    /// Opens a stream and pumps raw chunks into the channel
+    /// Performs a streaming POST request and processes the response into lines of bytes.
     /// # Errors
-    /// This function will return an error if the `reqwest` fails
+    /// This function will return an error if the request or stream processing fails.
     pub async fn stream_post(&self, payload: Bytes) -> Result<PostResult, String> {
         let response = self.prepare_and_send_request(payload).await?;
         let status = response.status();
