@@ -22,7 +22,6 @@ pub struct Config {
     #[arg(long="log-level", default_value_t = crate::config_defaults::default_mcp_wrapper_log_level())]
     pub mcp_wrapper_log_level: String,
 
-    #[serde(default = "crate::config_defaults::default_mcp_wrapper_log_file")]
     #[arg(long = "log-file")]
     pub mcp_wrapper_log_file: Option<String>,
 

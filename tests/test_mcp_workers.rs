@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::config_defaults::*;
 use mcp_stdio_wrapper::logger::init_logger;
@@ -36,11 +37,11 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
     let (tx_out, rx_out) = flume::unbounded();
 
     spawn_workers(default_concurrency(), &Arc::new(client), &rx_in, tx_out);
-    tx_in.send_async(String::from("init")).await?;
+    tx_in.send_async(Bytes::from("init")).await?;
 
     let out = rx_out.recv_async().await?;
 
-    assert_eq!(expected, out);
+    assert_eq!(expected, String::from_utf8_lossy(&out));
     mock_init.assert_async().await;
 
     Ok(())

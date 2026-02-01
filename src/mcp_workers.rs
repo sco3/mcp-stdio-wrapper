@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use crate::mcp_workers_write::write_output;
 use crate::streamer::McpStreamClient;
 use crate::streamer_error::mcp_error;
@@ -8,8 +9,8 @@ use tracing::{debug, error};
 pub fn spawn_workers(
     concurrency: usize,
     mcp_client: &Arc<McpStreamClient>,
-    input_rx: &Receiver<String>,
-    output_tx: Sender<String>,
+    input_rx: &Receiver<Bytes>,
+    output_tx: Sender<Bytes>,
 ) {
     for i in 0..concurrency {
         let rx = input_rx.clone();
@@ -18,7 +19,7 @@ pub fn spawn_workers(
 
         tokio::spawn(async move {
             while let Ok(line) = rx.recv_async().await {
-                debug!("Worker {i} processing message: {line}");
+                debug!("Worker {i} processing message: {}", String::from_utf8_lossy(&line));
                 let response = client.stream_post(line.clone()).await;
                 match response {
                     Ok(res) => {
@@ -26,7 +27,8 @@ pub fn spawn_workers(
                     }
                     Err(e) => {
                         error!("Worker {i}: Post failed: {e}");
-                        mcp_error(&i, &line, &e, &tx).await;
+                        let line_str = String::from_utf8_lossy(&line);
+                        mcp_error(&i, &line_str, &e, &tx).await;
                     }
                 }
             }

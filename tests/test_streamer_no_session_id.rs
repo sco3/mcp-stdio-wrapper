@@ -25,7 +25,7 @@ pub async fn test_streamer_no_session_id() -> Result<(), Box<dyn std::error::Err
     };
 
     let client = McpStreamClient::try_new(config)?;
-
+    assert!(!client.is_auth());
     let result: Option<String> = client.process_session_id(&response).await;
     assert!(
         result.is_none(),

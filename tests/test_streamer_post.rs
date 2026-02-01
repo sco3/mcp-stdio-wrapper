@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::config_defaults::*;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
@@ -56,11 +57,11 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
 
     let cli = McpStreamClient::try_new(config)?;
 
-    let out = cli.stream_post(INIT).await;
+    let out = cli.stream_post(Bytes::from(INIT)).await;
     mock_init.assert_async().await;
     println!("{out:?}");
 
-    let out = cli.stream_post(NOTIFY).await;
+    let out = cli.stream_post(Bytes::from(NOTIFY)).await;
     mock_notify.assert_async().await;
 
     println!("{out:?}");

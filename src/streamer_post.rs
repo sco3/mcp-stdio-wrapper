@@ -1,65 +1,61 @@
 use crate::post_result::PostResult;
 use crate::streamer::McpStreamClient;
+use crate::streamer_lines::extract_lines;
+use bytes::{Bytes, BytesMut};
 use futures::StreamExt;
 use reqwest::header::CONTENT_TYPE;
 use tracing::{debug, error};
 
 impl McpStreamClient {
     #[allow(dead_code)]
-    /// Opens a stream and pumps raw chunks into the provided flume channel
+    /// Performs a streaming POST request and processes the response into lines of bytes.
     /// # Errors
-    ///
-    /// This function will return an error if the `reqwest` fails
-    pub async fn stream_post(
-        &self,
-        payload: impl Into<reqwest::Body>,
-    ) -> Result<PostResult, String> {
-        let mut result = String::new();
-
+    /// This function will return an error if the request or stream processing fails.
+    pub async fn stream_post(&self, payload: Bytes) -> Result<PostResult, String> {
         let response = self.prepare_and_send_request(payload).await?;
-
         let status = response.status();
 
         if !status.is_success() {
-            // Attempt to get the error message from the server body
             let err_text = response
                 .text()
                 .await
                 .unwrap_or_else(|_| "Could not read error body".to_string());
 
             error!("Server returned error {}: {}", status, err_text);
-
             return Err(format!("Server error {status}: {err_text}"));
         }
 
-        let is_sse = response
+        let sse = response
             .headers()
             .get(CONTENT_TYPE)
             .and_then(|v| v.to_str().ok())
             .is_some_and(|s| s.contains("text/event-stream"));
 
-        let id = self.process_session_id(&response).await;
+        let session_id = self.process_session_id(&response).await;
 
+        let mut out = Vec::new();
+        let mut buffer = BytesMut::new();
         let mut stream = response.bytes_stream();
 
         while let Some(item) = stream.next().await {
             match item {
-                Ok(bytes) => {
-                    let chunk = String::from_utf8_lossy(&bytes);
-                    result.push_str(&chunk);
+                Ok(chunk) => {
+                    buffer.extend_from_slice(&chunk);
+                    extract_lines(&mut buffer, &mut out);
                 }
                 Err(e) => return Err(format!("Stream interrupted: {e}")),
             }
         }
-        debug!(
-            "Server output length: {} starting with: {:.42} ...",
-            result.len(),
-            result,
-        );
+
+        if !buffer.is_empty() {
+            out.push(buffer.freeze());
+        }
+        debug!("Received lines: {out:?}");
+
         Ok(PostResult {
-            out: result,
-            session_id: id,
-            sse: is_sse,
+            session_id,
+            out,
+            sse,
         })
     }
 }

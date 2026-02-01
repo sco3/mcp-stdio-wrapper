@@ -1,13 +1,14 @@
 use actson::feeder::SliceJsonFeeder;
 use actson::{JsonEvent, JsonParser};
 use jsonrpc_core::Id;
+use tracing::error;
 
-
-pub fn parse_id_fast(json: &str)->Option<Id> {
-    parse_field_fast(json,"id")
-    
+#[must_use]
+pub fn parse_id_fast(json: &str) -> Id {
+    parse_field_fast(json, "id")
 }
-pub fn parse_field_fast(json: &str, field_name: &str) -> Option<Id> {
+#[must_use]
+pub fn parse_field_fast(json: &str, field_name: &str) -> Id {
     let feeder = SliceJsonFeeder::new(json.as_bytes());
     let mut parser = JsonParser::new(feeder);
     let mut depth = 0;
@@ -29,22 +30,22 @@ pub fn parse_field_fast(json: &str, field_name: &str) -> Option<Id> {
                 }
             }
             JsonEvent::FieldName => {
-                if depth == 1
-                    && parser
-                        .current_str()
-                        .map_or(false, |name| name == field_name)
-                {
+                if depth == 1 && parser.current_str().is_ok_and(|name| name == field_name) {
                     // Get the very next event (the value)
                     if let Ok(Some(val_event)) = parser.next_event() {
-                        let s = parser.current_str().ok()?;
-                        return to_id(&val_event, s);
+                        match parser.current_str() {
+                            Ok(s) => return to_id(&val_event, s),
+                            Err(e) => {
+                                error!("Invalid string: {e}");
+                            }
+                        }
                     }
                 }
             }
             _ => {}
         }
     }
-    None
+    Id::Null
 }
 
 /// Skips a container entirely.
@@ -64,11 +65,10 @@ fn skip_container(parser: &mut JsonParser<SliceJsonFeeder>) {
     }
 }
 
-pub fn to_id(event: &JsonEvent, value_str: &str) -> Option<Id> {
+pub fn to_id(event: &JsonEvent, value_str: &str) -> Id {
     match event {
-        JsonEvent::ValueInt => value_str.parse::<u64>().ok().map(Id::Num),
-        JsonEvent::ValueString => Some(Id::Str(value_str.to_string())),
-        JsonEvent::ValueNull => Some(Id::Null),
-        _ => None,
+        JsonEvent::ValueInt => value_str.parse::<u64>().map(Id::Num).unwrap_or(Id::Null),
+        JsonEvent::ValueString => Id::Str(value_str.to_string()),
+        _ => Id::Null,
     }
 }
