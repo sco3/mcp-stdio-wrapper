@@ -1,6 +1,6 @@
-use bytes::Bytes;
 use crate::post_result::PostResult;
 use crate::streamer::McpStreamClient;
+use bytes::{Bytes, BytesMut};
 use futures::StreamExt;
 use reqwest::header::CONTENT_TYPE;
 use tracing::{debug, error};
@@ -11,25 +11,17 @@ impl McpStreamClient {
     /// # Errors
     ///
     /// This function will return an error if the `reqwest` fails
-    pub async fn stream_post(
-        &self,
-        payload: Bytes,
-    ) -> Result<PostResult, String> {
-        let mut result = Vec::new();
-
+    pub async fn stream_post(&self, payload: Bytes) -> Result<PostResult, String> {
         let response = self.prepare_and_send_request(payload).await?;
-
         let status = response.status();
 
         if !status.is_success() {
-            // Attempt to get the error message from the server body
             let err_text = response
                 .text()
                 .await
                 .unwrap_or_else(|_| "Could not read error body".to_string());
 
             error!("Server returned error {}: {}", status, err_text);
-
             return Err(format!("Server error {status}: {err_text}"));
         }
 
@@ -41,24 +33,42 @@ impl McpStreamClient {
 
         let id = self.process_session_id(&response).await;
 
+        let mut lines = Vec::new();
+        let mut buffer = BytesMut::new();
         let mut stream = response.bytes_stream();
 
         while let Some(item) = stream.next().await {
             match item {
-                Ok(bytes) => {
-                    result.extend_from_slice(&bytes);
+                Ok(chunk) => {
+                    buffer.extend_from_slice(&chunk);
+
+                    while let Some(pos) = buffer.iter().position(|&b| b == b'\n') {
+                        // split_to is O(1) and zero-copy
+                        let mut line = buffer.split_to(pos + 1);
+
+                        if line.last() == Some(&b'\n') {
+                            line.truncate(line.len() - 1);
+                        }
+                        if line.last() == Some(&b'\r') {
+                            line.truncate(line.len() - 1);
+                        }
+
+                        if !line.is_empty() {
+                            lines.push(line.freeze());
+                        }
+                    }
                 }
                 Err(e) => return Err(format!("Stream interrupted: {e}")),
             }
         }
-        let result = String::from_utf8_lossy(&result).into_owned();
-        debug!(
-            "Server output length: {} starting with: {:.42} ...",
-            result.len(),
-            result,
-        );
+
+        if !buffer.is_empty() {
+            lines.push(buffer.freeze());
+        }
+        debug!("Received lines: {lines:?}");
+
         Ok(PostResult {
-            out: result,
+            out: lines,
             session_id: id,
             sse: is_sse,
         })

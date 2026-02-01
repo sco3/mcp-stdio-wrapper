@@ -3,37 +3,51 @@ use bytes::Bytes;
 use flume::Sender;
 use tracing::error;
 
-/// Trims leading and trailing ASCII whitespace from a byte slice.
-fn trim_ascii_whitespace(bytes: &[u8]) -> &[u8] {
-    let from = match bytes.iter().position(|x| !x.is_ascii_whitespace()) {
-        Some(i) => i,
-        None => return &[],
-    };
-    // This unwrap is safe because if `position` returns `Some`, `rposition` with the same predicate will also return `Some`.
-    let to = bytes.iter().rposition(|x| !x.is_ascii_whitespace()).unwrap();
-    &bytes[from..=to]
+const DATA: &[u8] = b"data:";
+const DATA_LEN: usize = DATA.len();
+/// Trims leading and trailing ASCII whitespace from input.
+fn trim_ascii_whitespace(bytes: Bytes) -> Bytes {
+    let start = bytes
+        .iter()
+        .position(|b| !b.is_ascii_whitespace())
+        .unwrap_or(bytes.len());
+
+    let end = bytes
+        .iter()
+        .rposition(|b| !b.is_ascii_whitespace())
+        .map_or(start, |pos| pos + 1);
+
+    if start >= end {
+        Bytes::new()
+    } else {
+        bytes.slice(start..end)
+    }
 }
 
+fn strip_data(b: Bytes) -> Bytes {
+    let buf = if b.starts_with(DATA) {
+        b.slice(DATA_LEN..)
+    } else {
+        b
+    };
+    trim_ascii_whitespace(buf)
+}
 /// writes worker output to stdout channel
 pub async fn write_output(i: usize, tx: &Sender<Bytes>, res: PostResult) {
-    // By operating on byte slices (`&[u8]`), we can avoid intermediate
-    // string allocations and UTF-8 validation overhead for each line.
-    for line_bytes in res.out.as_bytes().split(|&c| c == b'\n') {
-        let processed_line = if res.sse {
-            // For SSE, strip "data: " prefix. If successful, trim the result.
-            // If the prefix isn't found, the line is considered empty.
-            match line_bytes.strip_prefix(b"data: ") {
-                Some(stripped) => trim_ascii_whitespace(stripped),
-                None => b"",
+    for line in res.out {
+        let out_line = if res.sse {
+            // For SSE, strip "data:"
+            let data = strip_data(line);
+            if data.is_empty() {
+                continue;
             }
+            data
         } else {
-            // For non-SSE, just trim the line.
-            trim_ascii_whitespace(line_bytes)
+            trim_ascii_whitespace(line)
         };
 
-        if !processed_line.is_empty() {
-            // An owned copy is necessary to send data to another thread.
-            if let Err(e) = tx.send_async(Bytes::copy_from_slice(processed_line)).await {
+        if !out_line.is_empty() {
+            if let Err(e) = tx.send_async(out_line).await {
                 error!("Worker {i}: failed to send: {e}");
                 break;
             }
