@@ -1,7 +1,7 @@
-use bytes::Bytes;
 use crate::json_rpc_id_fast::parse_id_fast;
+use bytes::Bytes;
 use flume::Sender;
-use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
+use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Version};
 use serde_json::json;
 use tracing::error;
 
@@ -13,10 +13,7 @@ pub async fn mcp_error(
     error_msg: &str,
     tx: &Sender<Bytes>,
 ) {
-    let id = parse_id_fast(json_str).unwrap_or_else(|| {
-        tracing::debug!("Failed to parse json rpc id from '{json_str}'");
-        Id::Null
-    });
+    let id = parse_id_fast(json_str);
 
     let error_obj = Error {
         code: ErrorCode::InternalError,
