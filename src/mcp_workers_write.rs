@@ -5,6 +5,7 @@ use tracing::error;
 
 const DATA: &[u8] = b"data:";
 const DATA_LEN: usize = DATA.len();
+const EMPTY: Bytes = Bytes::new();
 /// Trims leading and trailing ASCII whitespace from input.
 fn trim_ascii_whitespace(bytes: Bytes) -> Bytes {
     let start = bytes
@@ -18,19 +19,18 @@ fn trim_ascii_whitespace(bytes: Bytes) -> Bytes {
         .map_or(start, |pos| pos + 1);
 
     if start >= end {
-        Bytes::new()
+        EMPTY
     } else {
         bytes.slice(start..end)
     }
 }
 
 fn strip_data(b: Bytes) -> Bytes {
-    let buf = if b.starts_with(DATA) {
-        b.slice(DATA_LEN..)
+    if b.starts_with(DATA) {
+        trim_ascii_whitespace(b.slice(DATA_LEN..))
     } else {
-        b
-    };
-    trim_ascii_whitespace(buf)
+        EMPTY
+    }
 }
 /// writes worker output to stdout channel
 pub async fn write_output(i: usize, tx: &Sender<Bytes>, res: PostResult) {
