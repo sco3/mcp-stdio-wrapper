@@ -7,7 +7,7 @@ const DATA: &[u8] = b"data:";
 const DATA_LEN: usize = DATA.len();
 const EMPTY: Bytes = Bytes::new();
 /// Trims leading and trailing ASCII whitespace from input.
-fn trim_ascii_whitespace(bytes: Bytes) -> Bytes {
+fn trim_ascii_whitespace(bytes: &Bytes) -> Bytes {
     let start = bytes
         .iter()
         .position(|b| !b.is_ascii_whitespace())
@@ -25,9 +25,9 @@ fn trim_ascii_whitespace(bytes: Bytes) -> Bytes {
     }
 }
 
-fn strip_data(b: Bytes) -> Bytes {
+fn strip_data_prefix(b: &Bytes) -> Bytes {
     if b.starts_with(DATA) {
-        trim_ascii_whitespace(b.slice(DATA_LEN..))
+        trim_ascii_whitespace(&b.slice(DATA_LEN..))
     } else {
         EMPTY
     }
@@ -37,13 +37,9 @@ pub async fn write_output(i: usize, tx: &Sender<Bytes>, res: PostResult) {
     for line in res.out {
         let out_line = if res.sse {
             // For SSE, strip "data:"
-            let data = strip_data(line);
-            if data.is_empty() {
-                continue;
-            }
-            data
+            strip_data_prefix(&line)
         } else {
-            trim_ascii_whitespace(line)
+            trim_ascii_whitespace(&line)
         };
 
         if !out_line.is_empty() {

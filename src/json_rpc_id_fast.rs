@@ -38,7 +38,7 @@ pub fn parse_field_fast(json: &str, field_name: &str) -> Id {
                             Err(e) => {
                                 error!("Invalid string: {e}");
                             }
-                        };
+                        }
                     }
                 }
             }

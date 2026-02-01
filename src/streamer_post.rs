@@ -53,8 +53,8 @@ impl McpStreamClient {
         debug!("Received lines: {out:?}");
 
         Ok(PostResult {
-            out,
             session_id,
+            out,
             sse,
         })
     }
