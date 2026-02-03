@@ -9,10 +9,10 @@ use tracing::error;
 impl McpStreamClient {
     #[allow(unused)]
     /// Initialize the client with standard MCP headers
-    ///
     /// # Errors
-    ///
     /// * invalid auth header
+    /// #Panics
+    /// * wrong or missing tls certificate
     pub fn try_new(config: Config) -> Result<Self, reqwest::header::InvalidHeaderValue> {
         let timeout = config.mcp_tool_call_timeout;
         let mut client_builder = Client::builder().timeout(Duration::from_secs(timeout));
