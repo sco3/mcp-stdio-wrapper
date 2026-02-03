@@ -46,15 +46,16 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
     if mcp_auth.is_empty() {
         mcp_auth = "token".to_string();
     }
-    let config = Config {
-        mcp_server_url: format!("{url}/mcp/"),
-        mcp_auth,
-        concurrency: default_concurrency(),
-        mcp_wrapper_log_level: default_mcp_wrapper_log_level(),
-        mcp_wrapper_log_file: None,
-        mcp_tool_call_timeout: default_mcp_tool_call_timeout(),
-        tls_cert: None,
-    };
+
+    let config = Config::from_cli([
+        "test",
+        "--url",
+        &format!("{url}/mcp/"),
+        "--auth",
+        mcp_auth.as_str(),
+        "--tls-cert",
+        "/dev/null",
+    ]);
 
     let cli = McpStreamClient::try_new(config)?;
 

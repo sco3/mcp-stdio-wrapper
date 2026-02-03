@@ -12,11 +12,11 @@ use std::time::Instant;
 /// errors mean test failure
 fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     // 1. Setup Short Input
-    let short_json = r#"{"jsonrpc": "2.0", "method": "test", "id": 123}"#;
+    let short_json = r#"{"jsonrpc": "2.0", "method": "test",   "id": 123}"#;
 
     // Huge Input (Simulating a several MB payload)
     let mut large_data = String::with_capacity(20 * 1024 * 1024); // 20MB
-    large_data.push_str(r#"{"jsonrpc": "2.0", "id": 999, "data": ["#);
+    large_data.push_str(r#"{"jsonrpc": "2.0", "asdf":{}, "id": 999, "data": ["#);
 
     for i in 0..314_159 {
         if i > 0 {
