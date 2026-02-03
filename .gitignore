@@ -5,3 +5,4 @@
 *.dump
 *.pcap
 .bob
+headers-sdk.txt
