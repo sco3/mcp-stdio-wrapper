@@ -42,7 +42,7 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
 
     // --- Benchmark Short actson
     let start_short_fast = Instant::now();
-    let id_short_fast = parse_id_fast(short_json);
+    let id_short_fast = parse_id_fast(short_json.as_bytes());
     let duration_short_fast = start_short_fast.elapsed();
     assert_eq!(id_short_fast, Num(123));
     println!("Short JSON parse time (actson): {duration_short_fast:?}");
@@ -56,19 +56,19 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
 
     // --- Benchmark Large with actson
     let start_large_actson = Instant::now();
-    let id_large_actson = parse_id_fast(&large_data);
+    let id_large_actson = parse_id_fast(large_data.as_bytes());
     let duration_large_actson = start_large_actson.elapsed();
     assert_eq!(id_large_actson, Num(999));
     println!("Large JSON parse time (actson): {duration_large_actson:?}");
 
-    let found = parse_id_fast("{}");
+    let found = parse_id_fast("{}".as_bytes());
     assert_eq!(found, Id::Null);
 
-    let found = parse_id_fast("");
+    let found = parse_id_fast("".as_bytes());
     assert_eq!(found, Id::Null);
 
     let false_id = r#"{"some_key": "this value contains \"id\": 123", "id": 456}"#;
-    let found = parse_id_fast(false_id);
+    let found = parse_id_fast(false_id.as_bytes());
     assert_eq!(found, Num(456));
     Ok(())
 }

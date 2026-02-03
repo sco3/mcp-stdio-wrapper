@@ -9,7 +9,7 @@ use tracing::error;
 pub async fn mcp_error(
     //
     worker_id: &usize,
-    json_str: &str,
+    json_str: &[u8],
     error_msg: &str,
     tx: &Sender<Bytes>,
 ) {

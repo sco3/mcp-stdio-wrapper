@@ -54,7 +54,7 @@ async fn test_error() -> Result<(), Box<dyn std::error::Error>> {
 
     // Run tests in a loop
     for case in test_cases {
-        mcp_error(&worker, &case.input_json, case.error_message, &tx).await;
+        mcp_error(&worker, case.input_json.as_bytes(), case.error_message, &tx).await;
         verify(&rx, &case.expected_output).await;
     }
     Ok(())
