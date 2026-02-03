@@ -15,8 +15,6 @@ fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
         return;
     }
 
-    //let (non_blocking, guard) = non_blocking(stderr());
-
     let (non_blocking, guard) = if let Some(path) = log_file {
         match std::fs::OpenOptions::new()
             .create(true)
@@ -60,4 +58,12 @@ fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
 /// initializes logger
 pub fn init_logger(log_level: Option<&str>, log_file: Option<&str>) {
     INIT.call_once(|| init_logger_once(log_level, log_file));
+}
+
+/// Flushes and shuts down the global logger.
+/// Call this at the end of tests to ensure logs are written before file deletion.
+pub fn flush_logger() {
+    if let Ok(mut guard_lock) = GUARD.lock() {
+        *guard_lock = None; // Dropping the guard forces a flush
+    }
 }
