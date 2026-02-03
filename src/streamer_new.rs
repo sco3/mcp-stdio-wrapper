@@ -20,20 +20,18 @@ impl McpStreamClient {
         // Add root certificate if specified
         if let Some(tls_cert_path) = &config.tls_cert {
             let cert_bytes = std::fs::read(tls_cert_path).unwrap_or_else(|error| {
-                error!(
+                panic!(
                     "Failed to read cert file {}: {}",
                     tls_cert_path.display(),
                     error
                 );
-                std::process::exit(1);
             });
             let cert = reqwest::Certificate::from_pem(&cert_bytes).unwrap_or_else(|error| {
-                error!(
+                panic!(
                     "Invalid PEM in cert file {}: {}",
                     tls_cert_path.display(),
                     error
                 );
-                std::process::exit(1);
             });
             client_builder = client_builder.add_root_certificate(cert);
         }
