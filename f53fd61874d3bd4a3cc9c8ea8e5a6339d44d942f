@@ -1,0 +1,3 @@
+{"id":"80b7a8e4-4f0e-416b-b245-177738eb0a05","ts":"2026-02-03T15:44:45.338Z","path":"/home/dz/prj/mcp-stdio-wrapper/tests/test_streamer_no_session_id.rs","version":"1.0.0","taskID":"5fb99cde-caf8-4a28-a054-8889e7d5f7ef"}
+{"id":"25f03d73-fd6c-421e-9a5e-ba1f4e1da03a","ts":"2026-02-03T15:44:59.568Z","path":"/home/dz/prj/mcp-stdio-wrapper/tests/test_streamer_session.rs","version":"1.0.0","taskID":"5fb99cde-caf8-4a28-a054-8889e7d5f7ef"}
+{"id":"8821d595-67f3-4767-9293-a3ff27cb3ca2","ts":"2026-02-03T15:45:11.296Z","path":"/home/dz/prj/mcp-stdio-wrapper/tests/test_streamer_post.rs","version":"1.0.0","taskID":"5fb99cde-caf8-4a28-a054-8889e7d5f7ef"}
