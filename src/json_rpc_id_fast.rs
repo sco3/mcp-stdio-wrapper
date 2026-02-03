@@ -4,12 +4,12 @@ use jsonrpc_core::Id;
 use tracing::error;
 
 #[must_use]
-pub fn parse_id_fast(json: &str) -> Id {
+pub fn parse_id_fast(json: &[u8]) -> Id {
     parse_field_fast(json, "id")
 }
 #[must_use]
-pub fn parse_field_fast(json: &str, field_name: &str) -> Id {
-    let feeder = SliceJsonFeeder::new(json.as_bytes());
+pub fn parse_field_fast(json: &[u8], field_name: &str) -> Id {
+    let feeder = SliceJsonFeeder::new(json);
     let mut parser = JsonParser::new(feeder);
     let mut depth = 0;
 

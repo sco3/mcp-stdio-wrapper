@@ -1,7 +1,7 @@
 use crate::json_rpc_id_fast::parse_id_fast;
 use bytes::Bytes;
 use flume::Sender;
-use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Version};
+use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Id, Version};
 use serde_json::json;
 use tracing::error;
 
@@ -9,7 +9,7 @@ use tracing::error;
 pub async fn mcp_error(
     //
     worker_id: &usize,
-    json_str: &str,
+    json_str: &[u8],
     error_msg: &str,
     tx: &Sender<Bytes>,
 ) {
@@ -29,15 +29,19 @@ pub async fn mcp_error(
 
     let json_msg = match serde_json::to_string(&response) {
         Ok(msg) => msg,
-        Err(e) => json!({
-            "jsonrpc": "2.0",
-            "error": {"code": ErrorCode::InternalError,"message": e.to_string()},
-            "id": id
-        })
-        .to_string(),
+        Err(e) => get_error(id, &e),
     };
 
     if let Err(e) = tx.send_async(Bytes::from(json_msg)).await {
         error!("Worker {worker_id}: failed to send JSON-RPC response: {e}");
     }
+}
+/// creates error message
+pub fn get_error(id: Id, e: &serde_json::Error) -> String {
+    json!({
+        "jsonrpc": "2.0",
+        "error": {"code": ErrorCode::InternalError,"message": e.to_string()},
+        "id": id
+    })
+    .to_string()
 }

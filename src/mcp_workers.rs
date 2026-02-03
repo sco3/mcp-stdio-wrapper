@@ -1,8 +1,9 @@
-use bytes::Bytes;
 use crate::mcp_workers_write::write_output;
 use crate::streamer::McpStreamClient;
 use crate::streamer_error::mcp_error;
+use bytes::Bytes;
 use flume::{Receiver, Sender};
+use nom::AsBytes;
 use std::sync::Arc;
 use tracing::{debug, error};
 
@@ -19,7 +20,10 @@ pub fn spawn_workers(
 
         tokio::spawn(async move {
             while let Ok(line) = rx.recv_async().await {
-                debug!("Worker {i} processing message: {}", String::from_utf8_lossy(&line));
+                debug!(
+                    "Worker {i} processing message: {}",
+                    String::from_utf8_lossy(&line)
+                );
                 let response = client.stream_post(line.clone()).await;
                 match response {
                     Ok(res) => {
@@ -27,8 +31,8 @@ pub fn spawn_workers(
                     }
                     Err(e) => {
                         error!("Worker {i}: Post failed: {e}");
-                        let line_str = String::from_utf8_lossy(&line);
-                        mcp_error(&i, &line_str, &e, &tx).await;
+
+                        mcp_error(&i, line.as_bytes(), &e, &tx).await;
                     }
                 }
             }
