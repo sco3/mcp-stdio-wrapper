@@ -1,8 +1,9 @@
 use bytes::Bytes;
 use flume::Receiver;
-use jsonrpc_core::ErrorCode;
+use jsonrpc_core::{ErrorCode, Id};
 use mcp_stdio_wrapper::logger::init_logger;
-use mcp_stdio_wrapper::streamer_error::mcp_error;
+use mcp_stdio_wrapper::streamer_error::{get_error, mcp_error};
+use serde::de::Error;
 use serde_json::{json, Value};
 
 struct TestCase {
@@ -66,4 +67,5 @@ async fn verify(rx: &Receiver<Bytes>, expected: &Value) {
     let actual = serde_json::from_str::<Value>(&msg_str).expect("deserializing error");
     println!("{actual}");
     assert_eq!(actual, *expected);
+    let _ = get_error(Id::Null, &serde_json::Error::custom("Aha"));
 }
