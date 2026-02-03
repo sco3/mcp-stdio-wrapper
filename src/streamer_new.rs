@@ -11,7 +11,7 @@ impl McpStreamClient {
     /// Initialize the client with standard MCP headers
     /// # Errors
     /// * invalid auth header
-    /// #Panics
+    /// # Panics
     /// * wrong or missing tls certificate
     pub fn try_new(config: Config) -> Result<Self, reqwest::header::InvalidHeaderValue> {
         let timeout = config.mcp_tool_call_timeout;
