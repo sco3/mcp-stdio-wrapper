@@ -10,7 +10,7 @@ impl McpStreamClient {
         let url = &self.config.mcp_server_url;
         let mut request = self.client.post(url).body(payload);
 
-        for (key, value) in self.static_headers.iter() {
+        for (key, value) in &self.static_headers {
             request = request.header(key, value);
         }
 
