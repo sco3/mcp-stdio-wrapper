@@ -29,7 +29,7 @@ pub async fn mcp_error(
 
     let json_msg = match serde_json::to_string(&response) {
         Ok(msg) => msg,
-        Err(e) => get_error(id, &e),
+        Err(e) => get_error(&id, &e),
     };
 
     if let Err(e) = tx.send_async(Bytes::from(json_msg)).await {
@@ -37,7 +37,8 @@ pub async fn mcp_error(
     }
 }
 /// creates error message
-pub fn get_error(id: Id, e: &serde_json::Error) -> String {
+#[must_use]
+pub fn get_error(id: &Id, e: &serde_json::Error) -> String {
     json!({
         "jsonrpc": "2.0",
         "error": {"code": ErrorCode::InternalError,"message": e.to_string()},
