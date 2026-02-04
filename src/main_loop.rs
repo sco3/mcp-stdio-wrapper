@@ -4,7 +4,6 @@ use crate::stdio_reader::spawn_reader;
 use crate::stdio_writer::spawn_writer;
 use crate::streamer::McpStreamClient;
 use bytes::Bytes;
-use reqwest::header::InvalidHeaderValue;
 use std::sync::Arc;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tracing::{debug, error};
