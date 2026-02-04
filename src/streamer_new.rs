@@ -55,8 +55,8 @@ impl McpStreamClient {
         );
 
         // Add authorization header if configured
-        if !config.mcp_auth.is_empty() {
-            let auth_header = HeaderValue::from_str(&config.mcp_auth)?;
+        if let Some(auth) = config.mcp_auth.clone() {
+            let auth_header = HeaderValue::from_str(&auth)?;
             static_headers.insert(AUTHORIZATION, auth_header);
         }
 

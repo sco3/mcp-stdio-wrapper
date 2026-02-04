@@ -8,16 +8,16 @@ pub struct Config {
     pub mcp_server_url: String,
 
     /// Authorization header value
-    #[arg(long = "auth", env="MCP_AUTH" , default_value_t = crate::config_defaults::default_mcp_auth())]
-    pub mcp_auth: String,
+    #[arg(long = "auth", env = "MCP_AUTH")]
+    pub mcp_auth: Option<String>,
 
     /// Max concurrent tool calls
-    #[arg(long, default_value_t = crate::config_defaults::default_concurrency(), env="CONCURRENCY")]
+    #[arg(long, default_value_t = 10, env = "CONCURRENCY")]
     pub concurrency: usize,
 
     #[arg(
 	   long="log-level", 
-	   default_value_t = crate::config_defaults::default_mcp_wrapper_log_level(),
+	   default_value_t = String::from("off"),
 	   env="LOG_LEVEL"
 	)]
     pub mcp_wrapper_log_level: String,
@@ -26,11 +26,7 @@ pub struct Config {
     pub mcp_wrapper_log_file: Option<String>,
 
     /// Response timeout in seconds
-    #[arg(
-	   long = "timeout", 
-	   default_value_t = crate::config_defaults::default_mcp_tool_call_timeout(),
-	   env="MCP_TOOL_CALL_TIMEOUT"
-	)]
+    #[arg(long = "timeout", default_value_t = 60, env = "MCP_TOOL_CALL_TIMEOUT")]
     pub mcp_tool_call_timeout: u64,
 
     /// Path to a custom CA certificate file (PEM format, e.g., .pem, .crt, .cert)
