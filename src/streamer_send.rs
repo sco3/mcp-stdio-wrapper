@@ -8,11 +8,11 @@ impl McpStreamClient {
         payload: impl Into<reqwest::Body>,
     ) -> Result<Response, String> {
         let url = &self.config.mcp_server_url;
-        let mut request = self
-            .client
-            .post(url)
-            .headers(self.static_headers.clone())
-            .body(payload);
+        let mut request = self.client.post(url).body(payload);
+
+        for (key, value) in self.static_headers.iter() {
+            request = request.header(key, value);
+        }
 
         // Add dynamic session_id header if available
         if let Some(sid) = self.get_session_id().await {
