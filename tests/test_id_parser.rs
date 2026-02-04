@@ -70,5 +70,30 @@ fn test_parse_id_performance() -> Result<(), Box<dyn std::error::Error>> {
     let false_id = r#"{"some_key": "this value contains \"id\": 123", "id": 456}"#;
     let found = parse_id_fast(false_id.as_bytes());
     assert_eq!(found, Num(456));
+
+    let simple = r#"{"id":1}"#;
+    let found = parse_id_fast(simple.as_bytes());
+    assert_eq!(found, Num(1));
+
+    let simple = r#"{"test":{},"id":null}"#;
+    let found = parse_id_fast(simple.as_bytes());
+    assert_eq!(found, Id::Null);
+
+    let simple = r#"{"test":{},"id":{}}"#;
+    let found = parse_id_fast(simple.as_bytes());
+    assert_eq!(found, Id::Null);
+
+    let simple = r#"{"id":}"#;
+    let found = parse_id_fast(simple.as_bytes());
+    assert_eq!(found, Id::Null);
+
+    let simple = r#"{"id":"#;
+    let found = parse_id_fast(simple.as_bytes());
+    assert_eq!(found, Id::Null);
+
+    let simple = r#"{"id":}}"#;
+    let found = parse_id_fast(simple.as_bytes());
+    assert_eq!(found, Id::Null);
+
     Ok(())
 }
