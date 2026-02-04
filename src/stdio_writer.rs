@@ -12,7 +12,7 @@ where
     tokio::spawn(async move {
         let mut stdout = BufWriter::new(writer);
         while let Ok(message) = rx.recv_async().await {
-            if let Err(e) = process_message(&mut stdout, &message).await {
+            if let Err(e) = process_message(&rx, &mut stdout, &message).await {
                 error!("Failed to process message in writer: {}", e);
                 break;
             }
@@ -20,3 +20,5 @@ where
         info!("Writer task shutting down");
     })
 }
+
+

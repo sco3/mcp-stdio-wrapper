@@ -1,9 +1,11 @@
 use mcp_stdio_wrapper::main_init::init_main;
 use mcp_stdio_wrapper::main_loop::main_loop;
-use tokio::io::{stdin, stdout};
+use tokio::io::{stdin, stdout, BufReader, BufWriter};
 
 #[tokio::main]
 async fn main() {
     let config = init_main(std::env::args());
-    main_loop(config, stdin(), stdout()).await;
+    let reader = BufReader::with_capacity(256 * 1024, stdin());
+    let writer = BufWriter::with_capacity(512 * 1024, stdout());
+    main_loop(config, reader, writer).await;
 }
