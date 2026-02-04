@@ -7,5 +7,5 @@ use tracing::debug;
 async fn main() {
     let config = init_main(std::env::args());
     main_loop(config, stdin(), stdout()).await;
-    debug!("Finish");
+    
 }

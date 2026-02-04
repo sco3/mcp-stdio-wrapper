@@ -38,4 +38,5 @@ where
     let exit = spawn_writer(writer_rx, writer);
 
     let _ = exit.await;
+    debug!("Finish");
 }
