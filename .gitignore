@@ -6,3 +6,4 @@
 *.pcap
 .bob
 headers-sdk.txt
+.settings
