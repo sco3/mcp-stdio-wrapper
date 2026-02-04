@@ -37,10 +37,8 @@ impl McpStreamClient {
         }
 
         let client = client_builder.build().unwrap_or_else(|error| {
-            // Log to standard error (standard for CLI tools)
             error!("Error: {error}");
-            // Terminate with code 1 (or 255 for -1 equivalent)
-            std::process::exit(1);
+            panic!("Cannot create http client: {error}");
         });
 
         // Build static headers once during initialization
