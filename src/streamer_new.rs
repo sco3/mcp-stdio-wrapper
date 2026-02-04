@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::streamer::McpStreamClient;
-use crate::streamer_error::{invalid_error, read_error};
+use crate::streamer_error::{build_error, invalid_error, read_error};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use reqwest::Client;
 use std::fs::read;
@@ -17,7 +17,7 @@ impl McpStreamClient {
     /// # Panics
     /// * wrong or missing tls certificate
     pub fn try_new(config: Config) -> Result<Self, Box<dyn std::error::Error>> {
-        let mut client_builder =
+        let mut build =
             Client::builder() // http client
                 .timeout(Duration::from_secs(config.mcp_tool_call_timeout));
 
@@ -29,10 +29,10 @@ impl McpStreamClient {
             let cert = reqwest::Certificate::from_pem(&cert_bytes)
                 .map_err(|e| invalid_error(cert_path, &e))?;
 
-            client_builder = client_builder.add_root_certificate(cert);
+            build = build.add_root_certificate(cert);
         }
 
-        let client = client_builder.build()?;
+        let client = build.build().map_err(|e| build_error(&e))?;
 
         // Build static headers once during initialization
         let mut static_headers = HeaderMap::new();
