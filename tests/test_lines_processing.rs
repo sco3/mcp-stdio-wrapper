@@ -2,6 +2,7 @@ use bytes::{Bytes, BytesMut};
 use mcp_stdio_wrapper::streamer_lines::extract_lines;
 
 /// tests buffer split cr/lf
+/// # Panics on test failure
 #[test]
 pub fn test_process_lines() {
     let mut buffer = BytesMut::from("asdf\r\njkl\n");
