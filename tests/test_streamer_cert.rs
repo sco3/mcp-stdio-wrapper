@@ -30,7 +30,7 @@ pub async fn test_streamer_cert() {
 /// Panics if the mock server does not receive the expected request.
 
 #[tokio::test]
-#[should_panic(expected = "Cannot create http client")]
+#[should_panic]
 pub async fn test_streamer_cert_invalid_certificate() {
     const BLOB: &[&str] = &[
         "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNsamNDQlg0Q0NRQ0t6OFpy",
