@@ -24,22 +24,24 @@ pub async fn test_streamer_cert() {
     let _cli = McpStreamClient::try_new(config).unwrap();
 }
 // Note: reqwest::Certificate::from_pem() is very lenient and accepts many formats
-// The actual "Invalid PEM" error at line 29-35 is hard to trigger in practice
-// because from_pem() will parse almost anything and defer errors to the client builder
 // This test covers the error path that occurs when PEM parsing succeeds but
-// the certificate is invalid when added to the client builder (line 36-42)
+// the certificate is invalid when added to the client builder
+/// # Panics
+/// Panics if the mock server does not receive the expected request.
+
 #[tokio::test]
 #[should_panic(expected = "Cannot create http client")]
 pub async fn test_streamer_cert_invalid_certificate() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let log_file = temp_dir.path().join("invalid-cert.pem");
-    let log_path = log_file.to_str().unwrap();
-    let mut file = File::create(&log_file).unwrap();
     const BLOB: &[&str] = &[
         "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNsamNDQlg0Q0NRQ0t6OFpy",
         "ISEhSU5WQUxJRCEhIUJBU0U2NCEhIURBVEEhISFIRQpMLS0tLS1FTkQgQ0VSVElG",
         "SUNBVEUtLS0tLQo=",
     ];
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let log_file = temp_dir.path().join("invalid-cert.pem");
+    let log_path = log_file.to_str().unwrap();
+    let mut file = File::create(&log_file).unwrap();
     let broken = general_purpose::STANDARD
         .decode(BLOB.join(""))
         .expect("Failed to decode test data");

@@ -6,7 +6,7 @@ use tracing::info;
 
 /// Comprehensive test for log file functionality
 /// Tests file creation, writing, and append mode in a single test
-/// to avoid conflicts with Once::call_once() limitation
+/// to avoid conflicts with `Once::call_once()` limitation
 /// 
 /// This test covers:
 /// 1. File creation when it doesn't exist
@@ -58,7 +58,7 @@ async fn test_logger_file_all_scenarios() {
     
     // Verify multiple lines were written
     let line_count = contents.lines().count();
-    assert!(line_count >= 4, "Log file should contain at least 4 lines (1 initial + 3 logs), found {}", line_count);
+    assert!(line_count >= 4, "Log file should contain at least 4 lines (1 initial + 3 logs), found {line_count}");
     
 }
 
