@@ -7,7 +7,7 @@ use std::sync::Arc;
 #[test]
 fn test_init_main() {
     // Simulate command line arguments
-    let fake_args = vec!["wrapper", "--url", "file:///tmp"];
+    let fake_args = ["wrapper", "--url", "file:///tmp"];
     let config = init_main(fake_args.iter());
     assert_eq!(config.mcp_server_url, "file:///tmp");
 }
@@ -53,7 +53,7 @@ async fn test_main_loop() {
 
     let config = Config::from_cli(["test", "--url", url.as_str()]);
 
-    let mock_init = server
+    let _mock_init = server
         .mock("POST", "/mcp/")
         .with_status(200)
         .with_header("mcp-session-id", "9cb62a01-2523-4380-964e-2e3efd1d135a")
