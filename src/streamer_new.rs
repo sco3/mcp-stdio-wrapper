@@ -7,7 +7,7 @@ use std::fs::read;
 use std::time::Duration;
 use tokio::sync::RwLock;
 
-const ACCEPT_VALUES: &'static str = "application/json, application/x-ndjson, text/event-stream";
+const ACCEPT_VALUES: &str = "application/json, application/x-ndjson, text/event-stream";
 
 impl McpStreamClient {
     #[allow(unused)]
