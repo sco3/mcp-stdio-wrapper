@@ -4,6 +4,7 @@ use crate::streamer_lines::extract_lines;
 use bytes::{Bytes, BytesMut};
 use futures::StreamExt;
 use reqwest::header::CONTENT_TYPE;
+use reqwest::Client;
 use tracing::{debug, error};
 
 impl McpStreamClient {
@@ -11,8 +12,8 @@ impl McpStreamClient {
     /// Performs a streaming POST request and processes the response into lines of bytes.
     /// # Errors
     /// This function will return an error if the request or stream processing fails.
-    pub async fn stream_post(&self, payload: Bytes) -> Result<PostResult, String> {
-        let response = self.prepare_and_send_request(payload).await?;
+    pub async fn stream_post(&self, client: &Client, payload: Bytes) -> Result<PostResult, String> {
+        let response = self.prepare_and_send_request(client, payload).await?;
         let status = response.status();
 
         if !status.is_success() {

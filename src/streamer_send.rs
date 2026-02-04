@@ -1,14 +1,15 @@
 use crate::streamer::{McpStreamClient, SID};
-use reqwest::Response;
+use reqwest::{Client, Response};
 
 impl McpStreamClient {
     /// prepare and send request
     pub(crate) async fn prepare_and_send_request(
         &self, //
+        client: &Client,
         payload: impl Into<reqwest::Body>,
     ) -> Result<Response, String> {
         let url = &self.config.mcp_server_url;
-        let mut request = self.client.post(url).body(payload);
+        let mut request = client.post(url).body(payload);
 
         for (key, value) in &self.static_headers {
             request = request.header(key, value);

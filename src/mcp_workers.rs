@@ -1,3 +1,4 @@
+use crate::http_client::get_http_client;
 use crate::mcp_workers_write::write_output;
 use crate::streamer::McpStreamClient;
 use crate::streamer_error::mcp_error;
@@ -17,27 +18,28 @@ pub fn spawn_workers(
         let rx = input_rx.clone();
         let tx = output_tx.clone();
         let client = mcp_client.clone();
+        if let Ok(h_client) = get_http_client(&mcp_client.config) {
+            tokio::spawn(async move {
+                while let Ok(line) = rx.recv_async().await {
+                    debug!(
+                        "Worker {i} processing message: {}",
+                        String::from_utf8_lossy(&line)
+                    );
+                    let response = client.stream_post(&h_client, line.clone()).await;
+                    match response {
+                        Ok(res) => {
+                            write_output(i, &tx, res).await;
+                        }
+                        Err(e) => {
+                            error!("Worker {i}: Post failed: {e}");
 
-        tokio::spawn(async move {
-            while let Ok(line) = rx.recv_async().await {
-                debug!(
-                    "Worker {i} processing message: {}",
-                    String::from_utf8_lossy(&line)
-                );
-                let response = client.stream_post(line.clone()).await;
-                match response {
-                    Ok(res) => {
-                        write_output(i, &tx, res).await;
-                    }
-                    Err(e) => {
-                        error!("Worker {i}: Post failed: {e}");
-
-                        mcp_error(&i, line.as_bytes(), &e, &tx).await;
+                            mcp_error(&i, line.as_bytes(), &e, &tx).await;
+                        }
                     }
                 }
-            }
-            debug!("Worker {} shutting down", i);
-        });
+                debug!("Worker {} shutting down", i);
+            });
+        }
     }
     drop(output_tx);
 }
