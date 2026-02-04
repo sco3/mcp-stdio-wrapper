@@ -27,21 +27,27 @@ pub async fn mcp_error(
         id: id.clone(),
     };
 
-    let json_msg = match serde_json::to_string(&response) {
-        Ok(msg) => msg,
-        Err(e) => get_error(id, &e),
+    let json_bytes = match serde_json::to_vec(&response) {
+        Ok(bytes) => Bytes::from(bytes),
+        Err(e) => get_error_bytes(id, &e),
     };
 
-    if let Err(e) = tx.send_async(Bytes::from(json_msg)).await {
+    if let Err(e) = tx.send_async(json_bytes).await {
         error!("Worker {worker_id}: failed to send JSON-RPC response: {e}");
     }
 }
-/// creates error message
-pub fn get_error(id: Id, e: &serde_json::Error) -> String {
-    json!({
+/// creates error message as bytes
+pub fn get_error_bytes(id: Id, e: &serde_json::Error) -> Bytes {
+    let error_json = json!({
         "jsonrpc": "2.0",
         "error": {"code": ErrorCode::InternalError,"message": e.to_string()},
         "id": id
-    })
-    .to_string()
+    });
+    
+    // Use to_vec to avoid intermediate String allocation
+    match serde_json::to_vec(&error_json) {
+        Ok(bytes) => Bytes::from(bytes),
+        // Fallback to a simple error message if serialization fails
+        Err(_) => Bytes::from_static(b"{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32603,\"message\":\"Internal error\"},\"id\":null}"),
+    }
 }

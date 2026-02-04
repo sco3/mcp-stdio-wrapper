@@ -2,8 +2,7 @@ use crate::post_result::PostResult;
 use crate::streamer::McpStreamClient;
 use crate::streamer_lines::extract_lines;
 use bytes::{Bytes, BytesMut};
-use futures::StreamExt;
-use reqwest::header::CONTENT_TYPE;
+use http_body_util::BodyExt;
 use tracing::{debug, error};
 
 impl McpStreamClient {
@@ -16,18 +15,21 @@ impl McpStreamClient {
         let status = response.status();
 
         if !status.is_success() {
-            let err_text = response
-                .text()
+            let body = response.into_body();
+            let body_bytes = body
+                .collect()
                 .await
-                .unwrap_or_else(|_| "Could not read error body".to_string());
-
+                .map_err(|e| format!("Failed to read error body: {e}"))?
+                .to_bytes();
+            
+            let err_text = String::from_utf8_lossy(&body_bytes).to_string();
             error!("Server returned error {}: {}", status, err_text);
             return Err(format!("Server error {status}: {err_text}"));
         }
 
         let sse = response
             .headers()
-            .get(CONTENT_TYPE)
+            .get(http::header::CONTENT_TYPE)
             .and_then(|v| v.to_str().ok())
             .is_some_and(|s| s.contains("text/event-stream"));
 
@@ -35,13 +37,15 @@ impl McpStreamClient {
 
         let mut out = Vec::new();
         let mut buffer = BytesMut::new();
-        let mut stream = response.bytes_stream();
+        let mut body = response.into_body();
 
-        while let Some(item) = stream.next().await {
-            match item {
-                Ok(chunk) => {
-                    buffer.extend_from_slice(&chunk);
-                    extract_lines(&mut buffer, &mut out);
+        while let Some(frame_result) = body.frame().await {
+            match frame_result {
+                Ok(frame) => {
+                    if let Some(chunk) = frame.data_ref() {
+                        buffer.extend_from_slice(chunk);
+                        extract_lines(&mut buffer, &mut out);
+                    }
                 }
                 Err(e) => return Err(format!("Stream interrupted: {e}")),
             }
