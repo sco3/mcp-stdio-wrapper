@@ -24,10 +24,10 @@ impl McpStreamClient {
         // Add root certificate if specified
         if let Some(cert_path) = &config.tls_cert {
             let cert_bytes = read(cert_path) // may fail
-                .map_err(|e| read_error(cert_path, e))?;
+                .map_err(|e| read_error(cert_path, &e))?;
 
             let cert = reqwest::Certificate::from_pem(&cert_bytes)
-                .map_err(|e| invalid_error(cert_path, e))?;
+                .map_err(|e| invalid_error(cert_path, &e))?;
 
             client_builder = client_builder.add_root_certificate(cert);
         }

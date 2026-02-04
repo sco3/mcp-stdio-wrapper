@@ -3,7 +3,7 @@ use bytes::Bytes;
 use flume::Sender;
 use jsonrpc_core::{serde_json, Error, ErrorCode, Failure, Version};
 use serde_json::json;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tracing::error;
 
 /// creates error message
@@ -49,11 +49,11 @@ pub fn rpc_error(failure: &Failure, e: &serde_json::Error) -> String {
 }
 
 #[must_use]
-pub fn invalid_error(path: &PathBuf, e: reqwest::Error) -> String {
+pub fn invalid_error(path: &Path, e: &reqwest::Error) -> String {
     format!("Invalid PEM in cert file {}: {}", path.display(), e)
 }
 
 #[must_use]
-pub fn read_error(path: &Path, e: std::io::Error) -> String {
+pub fn read_error(path: &Path, e: &std::io::Error) -> String {
     format!("Failed to read cert file {}: {}", path.display(), e)
 }
