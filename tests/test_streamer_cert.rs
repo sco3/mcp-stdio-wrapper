@@ -1,9 +1,11 @@
 use base64::{engine::general_purpose, Engine as _};
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
+use mcp_stdio_wrapper::streamer_error::invalid_error;
 use nom::AsBytes;
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 
 /// Tests the streamer post failure case.
 /// # Errors
@@ -55,6 +57,9 @@ pub async fn test_streamer_cert_invalid_certificate() {
         "--tls-cert",
         log_path,
     ]);
+
+    let e = reqwest::Client::new().get("").build().unwrap_err();
+    let _msg = invalid_error(Path::new("/tmp"), &e);
 
     let _cli = McpStreamClient::try_new(config).unwrap();
 }
