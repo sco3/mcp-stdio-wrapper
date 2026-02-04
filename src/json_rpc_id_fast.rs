@@ -69,7 +69,7 @@ pub fn to_id(event: &JsonEvent, value_str: &str) -> Id {
     match event {
         JsonEvent::ValueInt => value_str.parse::<u64>().map(Id::Num).unwrap_or(Id::Null),
         JsonEvent::ValueString => Id::Str(value_str.to_string()),
-        JsonEvent::ValueNull => Id::Null,
+        //JsonEvent::ValueNull => Id::Null, clippy does not like this
         _ => Id::Null,
     }
 }
