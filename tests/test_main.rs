@@ -1,8 +1,4 @@
-use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::main_init::init_main;
-use mcp_stdio_wrapper::main_loop::main_loop;
-use mockito::Server;
-use std::sync::Arc;
 
 #[test]
 fn test_init_main() {
