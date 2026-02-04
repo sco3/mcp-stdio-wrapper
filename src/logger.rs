@@ -1,5 +1,4 @@
-use crate::config_defaults::default_mcp_wrapper_log_level;
-
+use crate::config::DEFAULT_LOG_LEVEL;
 use std::sync::{Mutex, Once};
 use tracing::level_filters;
 use tracing_appender::non_blocking::WorkerGuard;
@@ -8,7 +7,7 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 static INIT: Once = Once::new();
 static GUARD: Mutex<Option<WorkerGuard>> = Mutex::new(None);
 fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
-    let def_level = default_mcp_wrapper_log_level();
+    let def_level = DEFAULT_LOG_LEVEL;
 
     let level = log_level.unwrap_or(&def_level);
     if level == "off" {

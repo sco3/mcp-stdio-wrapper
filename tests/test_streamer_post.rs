@@ -1,6 +1,5 @@
 use bytes::Bytes;
-use mcp_stdio_wrapper::config::Config;
-use mcp_stdio_wrapper::config_defaults::*;
+use mcp_stdio_wrapper::config::{Config, DEFAULT_AUTH};
 use mcp_stdio_wrapper::streamer::McpStreamClient;
 use mockito::Server;
 
@@ -42,9 +41,9 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
         .create_async()
         .await;
 
-    let mut mcp_auth = default_mcp_auth();
-    if mcp_auth.is_empty() {
-        mcp_auth = "token".to_string();
+    let mut mcp_auth = DEFAULT_AUTH;
+    if mcp_auth.is_none() {
+        mcp_auth = Some("token");
     }
 
     let config = Config::from_cli([
@@ -52,7 +51,7 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
         "--url",
         &format!("{url}/mcp/"),
         "--auth",
-        mcp_auth.as_str(),
+        mcp_auth.unwrap(),
         "--tls-cert",
         "/dev/null",
     ]);

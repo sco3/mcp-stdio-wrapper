@@ -1,6 +1,10 @@
 use clap::Parser;
 use serde::Deserialize;
 
+pub const DEFAULT_LOG_LEVEL: &str = "off";
+pub const DEFAULT_CONCURRENCY: usize = 10;
+pub const DEFAULT_AUTH: Option<&str> = None;
+
 #[derive(Deserialize, Debug, Parser)]
 pub struct Config {
     /// Gateway MCP endpoint URL
@@ -12,12 +16,12 @@ pub struct Config {
     pub mcp_auth: Option<String>,
 
     /// Max concurrent tool calls
-    #[arg(long, default_value_t = 10, env = "CONCURRENCY")]
+    #[arg(long, default_value_t = DEFAULT_CONCURRENCY, env = "CONCURRENCY")]
     pub concurrency: usize,
 
     #[arg(
 	   long="log-level", 
-	   default_value_t = String::from("off"),
+	   default_value_t = String::from(DEFAULT_LOG_LEVEL),
 	   env="LOG_LEVEL"
 	)]
     pub mcp_wrapper_log_level: String,

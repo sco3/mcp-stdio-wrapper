@@ -1,6 +1,6 @@
 use bytes::Bytes;
-use mcp_stdio_wrapper::config::Config;
-use mcp_stdio_wrapper::config_defaults::*;
+use mcp_stdio_wrapper::config::{Config, DEFAULT_CONCURRENCY};
+
 use mcp_stdio_wrapper::logger::init_logger;
 use mcp_stdio_wrapper::mcp_workers::*;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
@@ -36,7 +36,7 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
     let (tx_in, rx_in) = flume::unbounded();
     let (tx_out, rx_out) = flume::unbounded();
 
-    spawn_workers(default_concurrency(), &Arc::new(client), &rx_in, tx_out);
+    spawn_workers(DEFAULT_CONCURRENCY, &Arc::new(client), &rx_in, tx_out);
     tx_in.send_async(Bytes::from("init")).await?;
 
     let out = rx_out.recv_async().await?;

@@ -1,5 +1,4 @@
 pub mod config;
-pub mod config_defaults;
 pub mod config_from_cli;
 
 pub mod json_rpc_id;
