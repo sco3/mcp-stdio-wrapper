@@ -47,10 +47,8 @@ impl McpStreamClient {
             ACCEPT,
             HeaderValue::from_static("application/json, application/x-ndjson, text/event-stream"),
         );
-        static_headers.insert(
-            CONTENT_TYPE,
-            HeaderValue::from_str(&config.mcp_content_type)?,
-        );
+        let cont_type = HeaderValue::from_str(&config.mcp_content_type)?;
+        static_headers.insert(CONTENT_TYPE, cont_type);
 
         // Add authorization header if configured
         if let Some(auth) = config.mcp_auth.clone() {

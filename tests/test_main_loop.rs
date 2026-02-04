@@ -1,6 +1,7 @@
 use mcp_stdio_wrapper::config::Config;
 use mcp_stdio_wrapper::main_loop::main_loop;
 use mockito::Server;
+use std::io::Cursor;
 use std::sync::Arc;
 
 const INIT: &str = r#"{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabilities":{"prompts":{},"resources":{},"tools":{}},"serverInfo":{"name":"rmcp","version":"0.13.0"},"instructions":"This server provides counter tools and prompts. Tools: increment, decrement, get_value, say_hello, echo, sum. Prompts: example_prompt (takes a message), counter_analysis (analyzes counter state with a goal)."}}"#;
@@ -64,4 +65,14 @@ async fn test_main_loop() {
     let out = output_vec.lock().unwrap();
     let out_str = String::from_utf8_lossy(&out);
     println!("{out_str}");
+}
+
+#[tokio::test]
+//#[should_panic(expected = "Failed")]
+async fn test_main_loop_fail() {
+    let config = Config::from_cli(["test", "--url", "file://tmp", "-c", "bad\x0ff"]);
+    let input = Cursor::new(b"input");
+    let output = vec![];
+
+    main_loop(config, input, output).await;
 }
