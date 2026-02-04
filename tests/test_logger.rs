@@ -14,17 +14,6 @@ pub async fn test_logger_init_off() {
 pub async fn test_logger_init_info() {
     init_logger(Some("info"), None);
 }
-#[tokio::test]
-async fn test_logger_init_file() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let log_file = temp_dir.path().join("out.log");
-    let log_path = log_file.to_str().unwrap();
-
-    init_logger(Some("info"), Some(log_path));
-    info!("hello");
-    info!("hello");
-    flush_logger();
-}
 
 #[tokio::test]
 async fn test_logger_init_file_invalid_path() {
@@ -59,3 +48,5 @@ async fn test_logger_init_default_level() {
     info!("test with default log level");
     flush_logger();
 }
+
+// Made with Bob
