@@ -1055,6 +1055,7 @@ name = "mcp_stdio_wrapper"
 version = "1.0.0-BETA-1"
 dependencies = [
  "actson",
+ "base64",
  "bytes",
  "clap",
  "criterion",
