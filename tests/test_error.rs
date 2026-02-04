@@ -67,5 +67,5 @@ async fn verify(rx: &Receiver<Bytes>, expected: &Value) {
     let actual = serde_json::from_str::<Value>(&msg_str).expect("deserializing error");
     println!("{actual}");
     assert_eq!(actual, *expected);
-    let _ = get_error(Id::Null, &serde_json::Error::custom("Aha"));
+    let _ = get_error(&Id::Null, &serde_json::Error::custom("Aha"));
 }
