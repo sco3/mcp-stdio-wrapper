@@ -1,17 +1,27 @@
+use crate::config::Config;
 use crate::mcp_workers::spawn_workers;
 use crate::stdio_reader::spawn_reader;
 use crate::stdio_writer::spawn_writer;
 use crate::streamer::McpStreamClient;
 use bytes::Bytes;
+use reqwest::header::InvalidHeaderValue;
 use std::sync::Arc;
 use tokio::io::{AsyncRead, AsyncWrite};
-use tracing::debug;
+use tracing::{debug, error};
 
-pub async fn main_loop<R, W>(concurrency: usize, client: McpStreamClient, reader: R, writer: W)
+pub async fn main_loop<R, W>(config: Config, reader: R, writer: W)
 where
     R: AsyncRead + Unpin + Send + 'static,
     W: AsyncWrite + Unpin + Send + 'static,
 {
+    let concurrency = config.concurrency;
+    let client = match McpStreamClient::try_new(config) {
+        Ok(client) => client,
+        Err(e) => {
+            error!("Error {e}");
+            return;
+        }
+    };
     let mcp_client = Arc::new(client);
     debug!("Mcp client: {mcp_client:?}");
 
@@ -23,6 +33,7 @@ where
     spawn_reader(reader_tx, reader);
 
     // create several workers (limit with concurrenty parameter)
+
     spawn_workers(concurrency, &mcp_client, &reader_rx, writer_tx);
 
     let exit = spawn_writer(writer_rx, writer);
