@@ -7,7 +7,7 @@ use tracing::info;
 /// Comprehensive test for log file functionality
 /// Tests file creation, writing, and append mode in a single test
 /// to avoid conflicts with `Once::call_once()` limitation
-/// 
+///
 /// This test covers:
 /// 1. File creation when it doesn't exist
 /// 2. Append mode when file already exists
@@ -26,12 +26,12 @@ async fn test_logger_file_all_scenarios() {
 
     // Initialize logger with file path - should append, not overwrite
     init_logger(Some("info"), Some(log_path));
-    
+
     // Log multiple messages to test writing
     info!("first message");
     info!("second message");
     info!("third message");
-    
+
     // Flush to ensure all logs are written
     flush_logger();
 
@@ -43,23 +43,39 @@ async fn test_logger_file_all_scenarios() {
 
     // Read and verify file contents
     let contents = std::fs::read_to_string(&log_file).unwrap();
-    
+
     // Verify append mode - initial content should be preserved
-    assert!(contents.contains("=== Initial Content ==="), 
-            "File should preserve initial content (append mode)");
-    
+    assert!(
+        contents.contains("=== Initial Content ==="),
+        "File should preserve initial content (append mode)"
+    );
+
     // Verify new log messages were written
-    assert!(contents.contains("first message"), "Log file should contain 'first message'");
-    assert!(contents.contains("second message"), "Log file should contain 'second message'");
-    assert!(contents.contains("third message"), "Log file should contain 'third message'");
-    
+    assert!(
+        contents.contains("first message"),
+        "Log file should contain 'first message'"
+    );
+    assert!(
+        contents.contains("second message"),
+        "Log file should contain 'second message'"
+    );
+    assert!(
+        contents.contains("third message"),
+        "Log file should contain 'third message'"
+    );
+
     // Verify log format (should contain INFO level)
-    assert!(contents.contains("INFO"), "Log file should contain INFO level");
-    
+    assert!(
+        contents.contains("INFO"),
+        "Log file should contain INFO level"
+    );
+
     // Verify multiple lines were written
     let line_count = contents.lines().count();
-    assert!(line_count >= 4, "Log file should contain at least 4 lines (1 initial + 3 logs), found {line_count}");
-    
+    assert!(
+        line_count >= 4,
+        "Log file should contain at least 4 lines (1 initial + 3 logs), found {line_count}"
+    );
 }
 
 // Made with Bob

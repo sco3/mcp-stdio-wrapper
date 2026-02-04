@@ -40,18 +40,18 @@ pub async fn test_writer_error() -> Result<(), Box<dyn std::error::Error>> {
         .build();
 
     let writer = spawn_writer(rx, out);
-    
+
     // Send a message that will trigger the write error
     tx.send_async(Bytes::from("test message")).await?;
-    
+
     // Give the writer task time to process and fail
     tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-    
+
     // Drop the sender to allow the writer to shut down
     drop(tx);
-    
+
     // Wait for the writer task to complete
     writer.await?;
-    
+
     Ok(())
 }
