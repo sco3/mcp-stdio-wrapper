@@ -9,7 +9,7 @@ static GUARD: Mutex<Option<WorkerGuard>> = Mutex::new(None);
 fn init_logger_once(log_level: Option<&str>, log_file: Option<&str>) {
     let def_level = DEFAULT_LOG_LEVEL;
 
-    let level = log_level.unwrap_or(&def_level);
+    let level = log_level.unwrap_or(def_level);
     if level == "off" {
         return;
     }
