@@ -2,7 +2,7 @@ use bytes::Bytes;
 use flume::Receiver;
 use jsonrpc_core::{ErrorCode, Failure, Id, Version};
 use mcp_stdio_wrapper::logger::init_logger;
-use mcp_stdio_wrapper::streamer_error::{rpc_error, mcp_error};
+use mcp_stdio_wrapper::streamer_error::{mcp_error, rpc_error};
 use serde::de::Error;
 use serde_json::{json, Value};
 

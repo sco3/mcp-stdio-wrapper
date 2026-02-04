@@ -17,9 +17,8 @@ impl McpStreamClient {
     /// # Panics
     /// * wrong or missing tls certificate
     pub fn try_new(config: Config) -> Result<Self, Box<dyn std::error::Error>> {
-        let mut build =
-            Client::builder() // http client
-                .timeout(Duration::from_secs(config.mcp_tool_call_timeout));
+        let mut build = Client::builder() // http client
+            .timeout(Duration::from_secs(config.mcp_tool_call_timeout));
 
         // Add root certificate if specified
         if let Some(cert_path) = &config.tls_cert {
