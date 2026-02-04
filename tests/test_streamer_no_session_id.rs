@@ -1,6 +1,5 @@
 use http::Response as HttpResponse;
 use mcp_stdio_wrapper::config::Config;
-use mcp_stdio_wrapper::config_defaults::*;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
 
 /// # Panics
@@ -15,15 +14,7 @@ pub async fn test_streamer_no_session_id() -> Result<(), Box<dyn std::error::Err
 
     let response: reqwest::Response = http_res.into();
 
-    let config = Config {
-        mcp_server_url: "file:///tmp".to_string(),
-        mcp_auth: default_mcp_auth(),
-        concurrency: default_concurrency(),
-        mcp_wrapper_log_level: default_mcp_wrapper_log_level(),
-        mcp_wrapper_log_file: None,
-        mcp_tool_call_timeout: default_mcp_tool_call_timeout(),
-        tls_cert: None,
-    };
+    let config = Config::from_cli(["test", "--url", "file:///tmp"]);
 
     let client = McpStreamClient::try_new(config)?;
     assert!(!client.is_auth());
