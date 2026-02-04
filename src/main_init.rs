@@ -14,6 +14,5 @@ where
     );
     debug!("{config:?}");
     debug!("Start");
-    let _concurrency = config.concurrency;
     config
 }
