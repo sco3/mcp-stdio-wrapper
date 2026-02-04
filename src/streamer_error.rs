@@ -39,6 +39,7 @@ pub async fn mcp_error(
 }
 /// creates error message
 
+#[must_use] 
 pub fn rpc_error(failure: &Failure, e: &serde_json::Error) -> String {
     json!({
         "jsonrpc": "2.0",
@@ -48,14 +49,17 @@ pub fn rpc_error(failure: &Failure, e: &serde_json::Error) -> String {
     .to_string()
 }
 
+#[must_use] 
 pub fn invalid_error(path: &Path, e: &reqwest::Error) -> String {
     format!("Invalid PEM in cert file {}: {}", path.display(), e)
 }
 
+#[must_use] 
 pub fn read_error(path: &Path, e: &std::io::Error) -> String {
     format!("Failed to read cert file {}: {}", path.display(), e)
 }
 
+#[must_use] 
 pub fn build_error(e: &reqwest::Error) -> String {
     format!("Http client build error {e}")
 }
