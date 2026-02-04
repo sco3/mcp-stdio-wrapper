@@ -25,6 +25,7 @@ indexmap = "2.7.0"
 bytes = "1.11.0"
 nom = "7"
 tempfile = "3.24.0"
+mimalloc = "0.1.48"
 
 [dev-dependencies]
 mockito = "1.7.1"

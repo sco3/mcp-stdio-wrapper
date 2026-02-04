@@ -3,8 +3,12 @@ use mcp_stdio_wrapper::logger::init_logger;
 
 use mcp_stdio_wrapper::main_loop::main_loop;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
+use mimalloc::MiMalloc;
 use tokio::io::{stdin, stdout};
 use tracing::{debug, error};
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 #[tokio::main]
 async fn main() {
