@@ -36,7 +36,7 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
     let (tx_in, rx_in) = flume::unbounded();
     let (tx_out, rx_out) = flume::unbounded();
 
-    spawn_workers(DEFAULT_CONCURRENCY, &Arc::new(client), &rx_in, tx_out).await;
+    let _ = spawn_workers(DEFAULT_CONCURRENCY, &Arc::new(client), &rx_in, tx_out).await;
     tx_in.send_async(Bytes::from("init")).await?;
 
     let out = rx_out.recv_async().await?;

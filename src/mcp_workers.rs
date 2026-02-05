@@ -49,7 +49,7 @@ pub async fn spawn_workers(
             }
         };
 
-        tokio::spawn(async move {
+        let _ = tokio::spawn(async move {
             while let Ok(line) = rx.recv_async().await {
                 debug!(
                     "Worker {i} processing message: {}",
