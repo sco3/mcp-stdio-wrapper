@@ -69,7 +69,7 @@ pedantic ped p:
 # help: pedanticx pedx px  - Run clippy --fix with pedantic lints on src/
 pedanticx pedx px:
 	@echo "Running clippy with pedantic lints on src/..."
-	@cargo clippy --fix -- -W clippy::pedantic --fix
+	@cargo clippy --fix -- -W clippy::pedantic5
 
 # help: pedantic-test      - Run clippy with pedantic lints on tests/
 pedantic-test pedantic-tests pedt pt:
@@ -81,7 +81,7 @@ pedantic-test pedantic-tests pedt pt:
 pedantic-testx pedantic-testsx pedtx ptx:
 	@echo "Running clippy with pedantic lints on tests/..."
 	@cargo fmt
-	@cargo clippy --tests -- -W clippy::pedantic
+	@cargo clippy --tests --fix -- -W clippy::pedantic
 
 # help: coverage           - Generate code coverage report with llvm-cov
 coverage cov cv:
@@ -90,4 +90,4 @@ coverage cov cv:
 	@rustup component add llvm-tools-preview
 	@cargo llvm-cov --html --ignore-filename-regex "src/bin/.*"
 	@echo "Coverage report generated at target/llvm-cov/html/index.html"
-	@firefox target/llvm-cov/html/index.html
+	@xdg-open target/llvm-cov/html/index.html
