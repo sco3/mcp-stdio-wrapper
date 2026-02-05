@@ -11,6 +11,7 @@ INIT='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":
 
 NOTIFY='{"jsonrpc": "2.0","method": "notifications/initialized"}'
 LIST='{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+CALL='{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"fast-time-get-system-time","arguments":{"timezone":"UTC"}}}'
 
 HEADERS=(
 	-H "Authorization: Bearer $MCPGATEWAY_BEARER_TOKEN"
@@ -24,3 +25,5 @@ curl  -N  "$URL" "${HEADERS[@]}" -d "$NOTIFY"
 printf  "\n---\n"
 curl  -N  "$URL" "${HEADERS[@]}" -d "$LIST"
 printf "\n---\n"
+curl  -N  "$URL" "${HEADERS[@]}" -d "$CALL"
+

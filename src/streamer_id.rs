@@ -1,33 +1,32 @@
 use crate::streamer::McpStreamClient;
+use std::sync::Arc;
 
 impl McpStreamClient {
     #[allow(dead_code)]
     /// sets received session id
-    pub async fn set_session_id(&self, id: Option<String>) {
-        {
-            let read_guard = self.session_id.read().await;
-            if read_guard.is_some() || id.is_none() {
-                return;
+    pub fn set_session_id(&self, id: Option<String>) {
+        if self.session_id.load().is_some() || id.is_none() {
+            return;
+        }
+        let new_val = Arc::new(id);
+        self.session_id.rcu(|current| {
+            if current.is_some() {
+                Arc::clone(current)
+            } else {
+                Arc::clone(&new_val)
             }
-        }
-
-        let mut write_guard = self.session_id.write().await;
-
-        if write_guard.is_none() {
-            *write_guard = id;
-        }
+        });
     }
     #[allow(dead_code)]
     ///  session id
     #[must_use]
-    pub async fn get_session_id(&self) -> Option<String> {
-        let read_guard = self.session_id.read().await;
-        read_guard.clone()
+    pub fn get_session_id(&self) -> Option<String> {
+        let guard = self.session_id.load();
+        (**guard).clone()
     }
 
     /// Returns `true` if the MCP session has been initialized
-    pub async fn is_ready(&self) -> bool {
-        // Acquires a shared read lock
-        self.session_id.read().await.is_some()
+    pub fn is_ready(&self) -> bool {
+        self.session_id.load().is_some()
     }
 }

@@ -12,7 +12,6 @@ struct TestCase {
     expected_output: Value,
 }
 
-#[cfg(test)]
 #[tokio::test]
 /// test id parsing
 /// # Errors

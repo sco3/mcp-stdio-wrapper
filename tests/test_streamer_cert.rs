@@ -1,13 +1,13 @@
 use base64::{engine::general_purpose, Engine as _};
 use mcp_stdio_wrapper::config::Config;
-use mcp_stdio_wrapper::streamer::McpStreamClient;
+use mcp_stdio_wrapper::http_client::get_http_client;
 use mcp_stdio_wrapper::streamer_error::invalid_error;
 use nom::AsBytes;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-/// Tests the streamer post failure case.
+/// Tests the HTTP client creation failure when cert file cannot be read.
 /// # Errors
 /// Returns an error if the mock server setup fails.
 /// # Panics
@@ -23,13 +23,13 @@ pub async fn test_streamer_cert() {
         "?",
     ]);
 
-    let _cli = McpStreamClient::try_new(config).unwrap();
+    let _client = get_http_client(&config).await.unwrap();
 }
 // Note: reqwest::Certificate::from_pem() is very lenient and accepts many formats
 // This test covers the error path that occurs when PEM parsing succeeds but
 // the certificate is invalid when added to the client builder
 /// # Panics
-/// Panics if the mock server does not receive the expected request.
+/// Panics if the HTTP client cannot be built with invalid certificate.
 
 #[tokio::test]
 #[should_panic(expected = "Http client build error")]
@@ -61,5 +61,5 @@ pub async fn test_streamer_cert_invalid_certificate() {
     let e = reqwest::Client::new().get("").build().unwrap_err();
     let _msg = invalid_error(Path::new("/tmp"), &e);
 
-    let _cli = McpStreamClient::try_new(config).unwrap();
+    let _client = get_http_client(&config).await.unwrap();
 }

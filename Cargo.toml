@@ -12,7 +12,8 @@ tokio = { version = "1.49.0", features = ["full"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 clap = { version = "4.5.54", features = ["derive","env"] }
-reqwest = { version = "0.13.1", features = ["json", "rustls", "stream"] }
+reqwest = { version = "0.13.1", default-features = false, features = ["rustls", "json", "stream","http2"] }
+rustls = { version = "0.23", default-features = false, features = ["aws_lc_rs"] }
 futures = "0.3.31"
 http = "1.4.0"
 serde_json = "1.0.149"
@@ -26,6 +27,8 @@ bytes = "1.11.0"
 nom = "7"
 tempfile = "3.24.0"
 base64 = "0.22.1"
+arc-swap = "1.8.1"
+mimalloc = "0.1.48"
 
 [dev-dependencies]
 mockito = "1.7.1"
