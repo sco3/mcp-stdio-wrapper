@@ -53,4 +53,13 @@ pub struct Config {
     /// Maximum idle connections per host in the HTTP pool
     #[arg(long = "http-pool-size", env = "HTTP_POOL_SIZE")]
     pub http_pool_size: Option<usize>,
+
+    /// Enable HTTP/2 protocol (default: false)
+    #[arg(long = "http2", default_value_t = false, env = "HTTP2")]
+    pub http2: bool,
+
+    /// HTTP connection pool idle timeout in seconds
+    #[arg(long = "http-pool-idle-timeout", env = "HTTP_POOL_IDLE_TIMEOUT")]
+    pub http_pool_idle_timeout: Option<u64>,
+    
 }

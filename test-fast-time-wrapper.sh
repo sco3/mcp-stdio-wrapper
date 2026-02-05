@@ -30,8 +30,8 @@ else
 		mcp_stdio_wrapper
 		--url "http://localhost:8080/servers/9779b6698cbd4b4995ee04a4fab38737/mcp"
 		--auth "$AUTH"
-		--log-level off
-		#--log-file out.log
+		--log-level debug
+		--log-file out.log
 	)
 fi
 
@@ -49,4 +49,5 @@ time (
 	sleep ${SLEEP:=0}
 	echo "$CALL"
 	sleep ${SLEEP:=0}
+	sleep 999
 ) | "${EXE[@]}"
