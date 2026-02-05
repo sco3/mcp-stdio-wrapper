@@ -8,7 +8,14 @@ impl McpStreamClient {
         if self.session_id.load().is_some() || id.is_none() {
             return;
         }
-        self.session_id.store(Arc::new(id));
+        let new_val = Arc::new(id);
+        self.session_id.rcu(|current| {
+            if current.is_some() {
+                Arc::clone(current)
+            } else {
+                Arc::clone(&new_val)
+            }
+        });
     }
     #[allow(dead_code)]
     ///  session id
