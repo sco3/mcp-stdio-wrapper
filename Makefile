@@ -16,7 +16,7 @@ SHELL := /bin/bash
 # =============================================================================
 .PHONY: help
 help:
-	@grep "^# help\:" Makefile | grep -v grep | sed 's/\# help\: //' | sed 's/\# help\://'
+	@grep "^# help:" Makefile | grep -v grep | sed 's/# help: //' | sed 's/# help://'
 
 # =============================================================================
 # BUILD
