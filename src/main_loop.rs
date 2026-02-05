@@ -5,7 +5,7 @@ use crate::stdio_writer::spawn_writer;
 use crate::streamer::McpStreamClient;
 use bytes::Bytes;
 use std::sync::Arc;
-use tokio::io::{AsyncRead, AsyncWrite};
+use tokio::io::{AsyncRead, AsyncWrite, BufReader, BufWriter};
 use tracing::{debug, error};
 
 pub async fn main_loop<R, W>(config: Config, reader: R, writer: W)
@@ -13,6 +13,8 @@ where
     R: AsyncRead + Unpin + Send + 'static,
     W: AsyncWrite + Unpin + Send + 'static,
 {
+    let reader = BufReader::with_capacity(256 * 1024, reader);
+    let writer = BufWriter::with_capacity(512 * 1024, writer);
     let concurrency = config.concurrency;
     let client = match McpStreamClient::try_new(config) {
         Ok(client) => client,

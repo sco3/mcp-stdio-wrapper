@@ -1,7 +1,6 @@
 use crate::config::Config;
 use arc_swap::ArcSwap;
 use reqwest::header::HeaderMap;
-use reqwest::Client;
 
 pub const SID: &str = "mcp-session-id";
 

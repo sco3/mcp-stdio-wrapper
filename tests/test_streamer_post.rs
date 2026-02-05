@@ -1,5 +1,6 @@
 use bytes::Bytes;
 use mcp_stdio_wrapper::config::{Config, DEFAULT_AUTH};
+use mcp_stdio_wrapper::http_client::get_http_client;
 use mcp_stdio_wrapper::streamer::McpStreamClient;
 use mockito::Server;
 
@@ -56,13 +57,14 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
         "/dev/null",
     ]);
 
+    let http_client = get_http_client(&config).map_err(|e| e.to_string())?;
     let cli = McpStreamClient::try_new(config)?;
 
-    let out = cli.stream_post(Bytes::from(INIT)).await;
+    let out = cli.stream_post(&http_client, Bytes::from(INIT)).await;
     mock_init.assert_async().await;
     println!("{out:?}");
 
-    let out = cli.stream_post(Bytes::from(NOTIFY)).await;
+    let out = cli.stream_post(&http_client, Bytes::from(NOTIFY)).await;
     mock_notify.assert_async().await;
 
     println!("{out:?}");

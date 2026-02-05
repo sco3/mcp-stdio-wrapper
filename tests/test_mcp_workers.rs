@@ -21,7 +21,7 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
     let expected = "ok";
 
     let mock_init = server
-        .mock("POST", "/")
+        .mock("POST", "/mcp/")
         .with_status(200)
         .with_header("mcp-session-id", "session-42")
         .with_header("content-type", "text/event-stream") // sse emulation
@@ -30,7 +30,7 @@ pub async fn test_mcp_workers() -> Result<(), Box<dyn std::error::Error>> {
         .await;
 
     let url = server.url();
-    let config = Config::from_cli(["test", "--url", &url]);
+    let config = Config::from_cli(["test", "--url", &format!("{url}/mcp/")]);
 
     let client = McpStreamClient::try_new(config)?;
     let (tx_in, rx_in) = flume::unbounded();
