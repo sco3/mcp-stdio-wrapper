@@ -13,7 +13,9 @@ pub async fn spawn_workers(
     mcp_client: &Arc<McpStreamClient>,
     input_rx: &Receiver<Bytes>,
     output_tx: Sender<Bytes>,
-) {
+) -> Vec<tokio::task::JoinHandle<()>> {
+    let mut handles = Vec::with_capacity(concurrency);
+    
     // Create shared HTTP client if not using per-worker pools
     let shared_client = if mcp_client.config.http_pool_per_worker {
         None
@@ -49,7 +51,7 @@ pub async fn spawn_workers(
             }
         };
 
-        let _ = tokio::spawn(async move {
+        let handle = tokio::spawn(async move {
             while let Ok(line) = rx.recv_async().await {
                 debug!(
                     "Worker {i} processing message: {}",
@@ -69,6 +71,8 @@ pub async fn spawn_workers(
             }
             debug!("Worker {} shutting down", i);
         });
+        handles.push(handle);
     }
     drop(output_tx);
+    handles
 }

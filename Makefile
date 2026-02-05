@@ -63,11 +63,13 @@ pedanticx pedx px:
 # help: pedantic-test      - Run clippy with pedantic lints on tests/
 pedantic-test pedantic-tests pedt pt:
 	@echo "Running clippy with pedantic lints on tests/..."
+	@cargo fmt
 	@cargo clippy --tests -- -W clippy::pedantic
 
 # help: pedantic-testx      - Run clippy with pedantic lints on tests/
 pedantic-testx pedantic-testsx pedtx ptx:
 	@echo "Running clippy with pedantic lints on tests/..."
+	@cargo fmt
 	@cargo clippy --tests -- -W clippy::pedantic
 
 # help: coverage           - Generate code coverage report with llvm-cov
