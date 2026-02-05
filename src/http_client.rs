@@ -24,6 +24,10 @@ pub async fn get_http_client(config: &Config) -> Result<Client, String> {
         build = build.pool_idle_timeout(Duration::from_secs(idle_timeout));
     }
 
+    if config.insecure {
+        build = build.danger_accept_invalid_certs(true);
+    }
+
     if let Some(cert_path) = &config.tls_cert {
         let cert_bytes = read(cert_path)
             .await

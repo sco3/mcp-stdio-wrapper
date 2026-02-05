@@ -65,4 +65,8 @@ pub struct Config {
     /// HTTP connection pool idle timeout in seconds
     #[arg(long = "http-pool-idle-timeout", env = "HTTP_POOL_IDLE_TIMEOUT")]
     pub http_pool_idle_timeout: Option<u64>,
+
+    /// Disable TLS certificate verification (insecure, use only for testing)
+    #[arg(long = "insecure", default_value_t = false, env = "INSECURE")]
+    pub insecure: bool,
 }
