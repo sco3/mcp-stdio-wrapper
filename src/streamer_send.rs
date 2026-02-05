@@ -16,7 +16,7 @@ impl McpStreamClient {
         }
 
         // Add dynamic session_id header if available
-        if let Some(sid) = self.get_session_id().await {
+        if let Some(sid) = self.get_session_id() {
             request = request.header(SID, sid);
         }
 

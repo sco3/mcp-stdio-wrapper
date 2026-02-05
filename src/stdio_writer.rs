@@ -20,5 +20,3 @@ where
         info!("Writer task shutting down");
     })
 }
-
-

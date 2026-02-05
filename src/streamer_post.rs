@@ -32,7 +32,7 @@ impl McpStreamClient {
             .and_then(|v| v.to_str().ok())
             .is_some_and(|s| s.contains("text/event-stream"));
 
-        let session_id = self.process_session_id(&response).await;
+        let session_id = self.process_session_id(&response);
 
         let mut out = Vec::new();
         let mut buffer = BytesMut::new();

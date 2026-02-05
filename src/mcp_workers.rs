@@ -7,7 +7,7 @@ use flume::{Receiver, Sender};
 use nom::AsBytes;
 use std::sync::Arc;
 use tracing::{debug, error};
-
+/// creates configured number of workers
 pub fn spawn_workers(
     concurrency: usize,
     mcp_client: &Arc<McpStreamClient>,
@@ -15,17 +15,17 @@ pub fn spawn_workers(
     output_tx: Sender<Bytes>,
 ) {
     // Create shared HTTP client if not using per-worker pools
-    let shared_client = if !mcp_client.config.http_pool_per_worker {
-        get_http_client(&mcp_client.config).ok()
-    } else {
+    let shared_client = if mcp_client.config.http_pool_per_worker {
         None
+    } else {
+        get_http_client(&mcp_client.config).ok()
     };
 
     for i in 0..concurrency {
         let rx = input_rx.clone();
         let tx = output_tx.clone();
         let client = mcp_client.clone();
-        
+
         // Use shared client or create per-worker client
         let h_client = if let Some(ref shared) = shared_client {
             shared.clone()

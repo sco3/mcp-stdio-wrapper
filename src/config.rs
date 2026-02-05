@@ -47,7 +47,11 @@ pub struct Config {
     pub mcp_content_type: String,
 
     /// Create separate HTTP connection pool per worker (default: false, uses shared pool)
-    #[arg(long = "http-pool-per-worker", default_value_t = false, env = "HTTP_POOL_PER_WORKER")]
+    #[arg(
+        long = "http-pool-per-worker",
+        default_value_t = false,
+        env = "HTTP_POOL_PER_WORKER"
+    )]
     pub http_pool_per_worker: bool,
 
     /// Maximum idle connections per host in the HTTP pool
@@ -61,5 +65,4 @@ pub struct Config {
     /// HTTP connection pool idle timeout in seconds
     #[arg(long = "http-pool-idle-timeout", env = "HTTP_POOL_IDLE_TIMEOUT")]
     pub http_pool_idle_timeout: Option<u64>,
-    
 }
