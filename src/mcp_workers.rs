@@ -45,8 +45,8 @@ pub async fn spawn_workers(
             match get_http_client(&mcp_client.config).await {
                 Ok(c) => c,
                 Err(e) => {
-                    error!("Worker {i}: Failed to create HTTP client: {e}");
-                    continue;
+                    error!("Worker {i}: Failed to create HTTP client: {e}. Aborting.");
+                    panic!("Failed to create HTTP client for worker {i}: {e}");
                 }
             }
         };
