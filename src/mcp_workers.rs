@@ -15,7 +15,9 @@ pub fn spawn_workers(
     output_tx: Sender<Bytes>,
 ) {
     // Create shared HTTP client if not using per-worker pools
-    let shared_client = if !mcp_client.config.http_pool_per_worker {
+    let shared_client = if mcp_client.config.http_pool_per_worker {
+        None
+    } else {
         match get_http_client(&mcp_client.config) {
             Ok(client) => Some(client),
             Err(e) => {
@@ -27,8 +29,6 @@ pub fn spawn_workers(
                 None
             }
         }
-    } else {
-        None
     };
 
     for i in 0..concurrency {

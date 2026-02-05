@@ -57,7 +57,7 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
         "/dev/null",
     ]);
 
-    let http_client = get_http_client(&config).map_err(|e| e.to_string())?;
+    let http_client = get_http_client(&config).map_err(|e| e.clone())?;
     let cli = McpStreamClient::try_new(config)?;
 
     let out = cli.stream_post(&http_client, Bytes::from(INIT)).await;
