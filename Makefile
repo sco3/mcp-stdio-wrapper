@@ -39,11 +39,11 @@ check-test check-tests chkt ct:
 
 pedantic ped p:
 	@echo "Running clippy with pedantic lints on src/..."
-	@cargo clippy --lib --bins -- -W clippy::pedantic
-	
+	@cargo clippy $(ARGS) --lib --bins -- -W clippy::pedantic
+
 pedantic-test pedantic-tests pedt pt:
 	@echo "Running clippy with pedantic lints on tests/..."
-	@cargo clippy --tests -- -W clippy::pedantic
+	@cargo clippy --tests -- -W clippy::pedantic $(ARGS)
 
 coverage cov cv:
 	@echo "Generating code coverage report..."
