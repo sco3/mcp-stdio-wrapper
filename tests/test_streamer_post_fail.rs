@@ -19,7 +19,7 @@ pub async fn test_streamer_post() -> Result<(), Box<dyn std::error::Error>> {
         .create_async()
         .await;
     let config = Config::from_cli(["test", "--url", url.as_str()]);
-    let http_client = get_http_client(&config).map_err(|e| e.clone())?;
+    let http_client = get_http_client(&config).await.map_err(|e| e.clone())?;
     let cli = McpStreamClient::try_new(config)?;
 
     let out = cli.stream_post(&http_client, Bytes::from("ini")).await;

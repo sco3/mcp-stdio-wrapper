@@ -35,7 +35,7 @@ where
 
     // create several workers (limit with concurrenty parameter)
 
-    spawn_workers(concurrency, &mcp_client, &reader_rx, writer_tx);
+    spawn_workers(concurrency, &mcp_client, &reader_rx, writer_tx).await;
 
     let exit = spawn_writer(writer_rx, writer);
 

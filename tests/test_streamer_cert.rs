@@ -23,7 +23,7 @@ pub async fn test_streamer_cert() {
         "?",
     ]);
 
-    let _client = get_http_client(&config).unwrap();
+    let _client = get_http_client(&config).await.unwrap();
 }
 // Note: reqwest::Certificate::from_pem() is very lenient and accepts many formats
 // This test covers the error path that occurs when PEM parsing succeeds but
@@ -61,5 +61,5 @@ pub async fn test_streamer_cert_invalid_certificate() {
     let e = reqwest::Client::new().get("").build().unwrap_err();
     let _msg = invalid_error(Path::new("/tmp"), &e);
 
-    let _client = get_http_client(&config).unwrap();
+    let _client = get_http_client(&config).await.unwrap();
 }

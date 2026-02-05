@@ -8,7 +8,7 @@ use nom::AsBytes;
 use std::sync::Arc;
 use tracing::{debug, error};
 /// creates configured number of workers
-pub fn spawn_workers(
+pub async fn spawn_workers(
     concurrency: usize,
     mcp_client: &Arc<McpStreamClient>,
     input_rx: &Receiver<Bytes>,
@@ -18,7 +18,7 @@ pub fn spawn_workers(
     let shared_client = if mcp_client.config.http_pool_per_worker {
         None
     } else {
-        match get_http_client(&mcp_client.config) {
+        match get_http_client(&mcp_client.config).await {
             Ok(client) => Some(client),
             Err(e) => {
                 error!(
@@ -40,7 +40,7 @@ pub fn spawn_workers(
         let h_client = if let Some(ref shared) = shared_client {
             shared.clone()
         } else {
-            match get_http_client(&mcp_client.config) {
+            match get_http_client(&mcp_client.config).await {
                 Ok(c) => c,
                 Err(e) => {
                     error!("Worker {i}: Failed to create HTTP client: {e}");
