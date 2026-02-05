@@ -77,7 +77,7 @@ pedantic-test pedantic-tests pedt pt:
 	@cargo fmt
 	@cargo clippy --tests -- -W clippy::pedantic
 
-# help: pedantic-testx      - Run clippy with pedantic lints on tests/
+# help: pedantic-testx     - Run clippy with pedantic lints on tests/
 pedantic-testx pedantic-testsx pedtx ptx:
 	@echo "Running clippy with pedantic lints on tests/..."
 	@cargo fmt
