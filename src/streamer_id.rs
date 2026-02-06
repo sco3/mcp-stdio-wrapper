@@ -4,19 +4,14 @@ use std::sync::Arc;
 impl McpStreamClient {
     #[allow(dead_code)]
     /// sets received session id
-    pub fn set_session_id(&self, id: Option<String>) {
-        if self.session_id.load().is_some() || id.is_none() {
+    pub fn set_session_id(&self, new_id: &str) {
+        let current = self.session_id.load();
+        if current.as_deref() == Some(new_id) {
             return;
         }
-        let new_val = Arc::new(id);
-        self.session_id.rcu(|current| {
-            if current.is_some() {
-                Arc::clone(current)
-            } else {
-                Arc::clone(&new_val)
-            }
-        });
+        self.session_id.store(Arc::new(Some(new_id.to_string())));
     }
+
     #[allow(dead_code)]
     ///  session id
     #[must_use]
