@@ -2,7 +2,6 @@ use crate::streamer::McpStreamClient;
 use std::sync::Arc;
 
 impl McpStreamClient {
-    #[allow(dead_code)]
     /// sets received session id
     pub fn set_session_id(&self, new_id: &str) {
         let mut current_guard = self.session_id.load();
