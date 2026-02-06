@@ -1,10 +1,12 @@
 use crate::http_client::get_http_client;
 use crate::mcp_workers_write::write_output;
 use crate::streamer::McpStreamClient;
+use crate::streamer_error::mcp_error;
 use bytes::Bytes;
 use flume::{Receiver, Sender};
 use std::sync::Arc;
 use tracing::error;
+
 /// creates configured number of workers
 /// # Panics
 /// when http client build fails
@@ -48,10 +50,14 @@ pub async fn spawn_workers(
 
             // SThe Work Loop
             while let Ok(line) = rx.recv_async().await {
-                if let Ok(res) = mcp.stream_post(&h_client, line.clone()).await {
-                    write_output(i, &tx, res).await;
-                } else {
-                    break;
+                match mcp.stream_post(&h_client, line.clone()).await {
+                    Ok(res) => {
+                        write_output(i, &tx, res).await;
+                    }
+                    Err(e) => {
+                        error!("Worker {i}: Post failed: {e}");
+                        mcp_error(&i, &line, &e, &tx).await;
+                    }
                 }
             }
         }));
