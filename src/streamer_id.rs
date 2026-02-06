@@ -4,7 +4,6 @@ use std::sync::Arc;
 impl McpStreamClient {
     /// sets received session id
     pub fn set_session_id(&self, new_id: &str) {
-        let _current_guard = self.session_id.load();
         let mut current_guard = self.session_id.load();
         if current_guard.as_deref() == Some(new_id) {
             return; // no update
