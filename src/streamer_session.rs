@@ -10,9 +10,8 @@ impl McpStreamClient {
                 self.set_session_id(s);
                 let r = s.to_string();
                 return Some(r);
-            } else {
-                error!("Header contains invalid characters");
             }
+            error!("Header contains invalid characters");
         }
         None
     }
