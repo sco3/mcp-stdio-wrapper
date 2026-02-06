@@ -8,6 +8,8 @@ use nom::AsBytes;
 use std::sync::Arc;
 use tracing::{debug, error};
 /// creates configured number of workers
+/// # Panics
+/// when http client build fails
 pub async fn spawn_workers(
     concurrency: usize,
     mcp_client: &Arc<McpStreamClient>,
