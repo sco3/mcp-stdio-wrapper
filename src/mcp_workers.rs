@@ -48,7 +48,7 @@ pub async fn spawn_workers(
                 }
             };
 
-            // SThe Work Loop
+            // The Work Loop
             while let Ok(line) = rx.recv_async().await {
                 match mcp.stream_post(&h_client, line.clone()).await {
                     Ok(res) => {
