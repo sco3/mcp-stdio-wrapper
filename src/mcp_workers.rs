@@ -8,6 +8,8 @@ use nom::AsBytes;
 use std::sync::Arc;
 use tracing::{debug, error};
 /// creates configured number of workers
+/// # Panics
+/// when http client build fails
 pub async fn spawn_workers(
     concurrency: usize,
     mcp_client: &Arc<McpStreamClient>,
@@ -15,7 +17,7 @@ pub async fn spawn_workers(
     output_tx: Sender<Bytes>,
 ) -> Vec<tokio::task::JoinHandle<()>> {
     let mut handles = Vec::with_capacity(concurrency);
-    
+
     // Create shared HTTP client if not using per-worker pools
     let shared_client = if mcp_client.config.http_pool_per_worker {
         None
