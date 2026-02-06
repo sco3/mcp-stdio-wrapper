@@ -1,12 +1,10 @@
 use crate::http_client::get_http_client;
 use crate::mcp_workers_write::write_output;
 use crate::streamer::McpStreamClient;
-use crate::streamer_error::mcp_error;
 use bytes::Bytes;
 use flume::{Receiver, Sender};
-use nom::AsBytes;
 use std::sync::Arc;
-use tracing::{debug, error};
+use tracing::error;
 /// creates configured number of workers
 /// # Panics
 /// when http client build fails
@@ -19,10 +17,10 @@ pub async fn spawn_workers(
     let mut handles = Vec::with_capacity(concurrency);
 
     // "Shared" client If not "per worker"
-    let shared_client = if !mcp_client.config.http_pool_per_worker {
-        get_http_client(&mcp_client.config).await.ok()
-    } else {
+    let shared_client = if mcp_client.config.http_pool_per_worker {
         None
+    } else {
+        get_http_client(&mcp_client.config).await.ok()
     };
 
     // Spawn workers
