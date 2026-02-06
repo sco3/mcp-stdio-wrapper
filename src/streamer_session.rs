@@ -8,9 +8,7 @@ impl McpStreamClient {
         if let Some(val) = response.headers().get(SID) {
             match val.to_str() {
                 Ok(s) => self.set_session_id(s),
-                Err(e) => {
-                    error!("Invalid header: {e}")
-                }
+                Err(e) => error!("Invalid header: {e}"),
             }
         }
     }
