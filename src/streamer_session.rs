@@ -4,15 +4,14 @@ use tracing::error;
 
 impl McpStreamClient {
     /// saves session id for future use
-    pub fn process_session_id(&self, response: &Response) -> Option<String> {
+    pub fn process_session_id(&self, response: &Response) {
         if let Some(val) = response.headers().get(SID) {
-            if let Ok(s) = val.to_str() {
-                self.set_session_id(s);
-                let r = s.to_string();
-                return Some(r);
+            match val.to_str() {
+                Ok(s) => self.set_session_id(s),
+                Err(e) => {
+                    error!("Invalid header: {e}")
+                }
             }
-            error!("Header contains invalid characters");
         }
-        None
     }
 }
