@@ -18,7 +18,7 @@ pub async fn spawn_workers(
 ) -> Vec<tokio::task::JoinHandle<()>> {
     let mut handles = Vec::with_capacity(concurrency);
 
-    // "Shared" client If not "per worker"
+    // Create a shared client if not using per-worker pools
     let shared_client = if mcp_client.config.http_pool_per_worker {
         None
     } else {
