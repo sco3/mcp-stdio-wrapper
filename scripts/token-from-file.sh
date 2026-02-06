@@ -3,8 +3,9 @@
 set -ueo pipefail
 
 TOKEN_FILE="$HOME/.local/mcpgateway-bearer-token.txt"
+KEY=$(cat ~/.local/test-key.txt)
 if [ ! -f "$TOKEN_FILE" ]; then
-    AUTH="$(uv --project "${MCP_CONTEXT_FORGE_DIR}" run -m mcpgateway.utils.create_jwt_token --username admin@example.com --exp 10080 --secret my-test-key)"
+    AUTH="$(uv --project "${MCP_CONTEXT_FORGE_DIR}" run -m mcpgateway.utils.create_jwt_token --username admin@example.com --exp 10080 --secret $KEY)"
     echo -n "$AUTH" >$TOKEN_FILE
 fi
 
