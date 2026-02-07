@@ -25,5 +25,9 @@ pub async fn test_streamer_no_session_id() -> Result<(), Box<dyn std::error::Err
         "Should return None when session id not found"
     );
 
+    for _ in 0..42 {
+        client.set_session_id("same-id");
+    }
+
     Ok(())
 }
