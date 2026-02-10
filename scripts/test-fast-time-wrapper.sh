@@ -4,6 +4,10 @@ set -ueo pipefail
 
 MCPGATEWAY_BEARER_TOKEN="$(uvx --from mcp-contextforge-gateway python -m mcpgateway.utils.create_jwt_token --username admin@example.com --exp 10080 --secret my-test-key)"
 
+PORT="8080"
+SERVER_ID="9779b6698cbd4b4995ee04a4fab38737"
+URL="http://localhost:${PORT}/servers/${SERVER_ID}/mcp"
+
 AUTH="Bearer $MCPGATEWAY_BEARER_TOKEN"
 
 if [[ "${P:=X}" == "P" ]]; then
@@ -13,14 +17,14 @@ if [[ "${P:=X}" == "P" ]]; then
 		python
 		-m
 		mcpgateway.wrapper
-		--url "http://localhost:8080/servers/9779b6698cbd4b4995ee04a4fab38737/mcp"
+		--url "$URL"
 		--auth "$AUTH"
 		--log-level off
 	)
 else
 	EXE=(
-		../target/release/mcp_stdio_wrapper
-		--url "http://localhost:8080/servers/9779b6698cbd4b4995ee04a4fab38737/mcp"
+		"$(dirname "$0")/../target/release/mcp_stdio_wrapper"
+		--url "$URL"
 		--auth "$AUTH"
 		--log-level debug
 		--log-file out.log
