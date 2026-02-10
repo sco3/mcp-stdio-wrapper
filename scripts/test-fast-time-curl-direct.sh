@@ -32,7 +32,7 @@ HEADERS=(
 )
 
 TEMP_TXT=$(mktemp --suffix=.txt)
-trap 'rm -f "$TEMP_TXT"' EXIT
+trap 'kill "$PID" 2>/dev/null; rm -f "$TEMP_TXT"' EXIT
 
 curl -N "$URL" "${HEADERS[@]}" -d "$INIT" -D $TEMP_TXT
 SESSION_ID=$(grep -i "mcp-session-id" $TEMP_TXT | cut -d' ' -f2 | tr -d '\r')
