@@ -21,8 +21,11 @@ jobs:
           toolchain: stable
           override: true
 
+      - name: Format
+        run: cargo fmt --tests
+
       - name: Clippy linting
-        run: cargo clippy  --no-deps -- -W clippy::all -W clippy::pedantic
+        run: cargo clippy  --tests --no-deps -- -W clippy::all -W clippy::pedantic
 
       - name: Run tests
         run: cargo test
