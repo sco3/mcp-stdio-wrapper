@@ -5,6 +5,7 @@ set -ueo pipefail
 MCPGATEWAY_BEARER_TOKEN="$(uvx --from mcp-contextforge-gateway python -m mcpgateway.utils.create_jwt_token --username admin@example.com --exp 10080 --secret my-test-key)"
 
 AUTH="Bearer $MCPGATEWAY_BEARER_TOKEN"
+rm -f out.log
 
 if [[ "${P:=X}" == "P" ]]; then
 	EXE=(
