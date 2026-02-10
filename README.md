@@ -75,7 +75,7 @@ graph TD
         G --> H(stdio_writer);
         H --> I[stdout];
     end
-
+```
 ## Testing
 
 To verify the functionality of the `mcp-stdio-wrapper`, you can use the provided test scripts in the `scripts/` directory.
