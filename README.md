@@ -81,7 +81,7 @@ graph TD
 To verify the functionality of the `mcp-stdio-wrapper`, you can use the provided test scripts in the `scripts/` directory.
 Start gateway with:
 ```
-make compose up
+make compose-up
 ```
 before running test scripts.
 
