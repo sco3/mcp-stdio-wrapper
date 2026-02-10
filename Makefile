@@ -97,4 +97,5 @@ coverage cov cv:
 # help: licenses		- Check licenses
 licenses license lic l:
 	@echo Check licenses
+	@cargo install cargo-deny
 	@cargo deny check licenses
