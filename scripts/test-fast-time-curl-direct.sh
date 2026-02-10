@@ -12,7 +12,12 @@ netstat -ltnp 2>/dev/null | grep -q ":${PORT} " && {
 #MCPGATEWAY_BEARER_TOKEN="$(uvx --from mcp-contextforge-gateway python -m mcpgateway.utils.create_jwt_token --username admin@example.com --exp 10080 --secret my-test-key)"
 MCPGATEWAY_BEARER_TOKEN="some-string"
 
-fast-time-server -transport=http -port=$PORT -auth-token="$MCPGATEWAY_BEARER_TOKEN" 2>~/tmp/fast-time-server.log &
+TEMP_LOG=$(mktemp --suffix=.log)
+
+trap 'kill "$PID" 2>/dev/null; rm -f "$TEMP_LOG"' EXIT
+
+
+fast-time-server -transport=http -port=$PORT -auth-token="$MCPGATEWAY_BEARER_TOKEN" 2>$TEMP_LOG &
 PID="$!"
 
 trap 'kill "$PID" 2>/dev/null' EXIT
@@ -32,7 +37,7 @@ HEADERS=(
 )
 
 TEMP_TXT=$(mktemp --suffix=.txt)
-trap 'kill "$PID" 2>/dev/null; rm -f "$TEMP_TXT"' EXIT
+trap 'kill "$PID" 2>/dev/null; rm -f "$TEMP_TXT"; rm -f "$TEMP_LOG" ' EXIT
 
 curl -N "$URL" "${HEADERS[@]}" -d "$INIT" -D $TEMP_TXT
 SESSION_ID=$(grep -i "mcp-session-id" $TEMP_TXT | cut -d' ' -f2 | tr -d '\r')
