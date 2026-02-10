@@ -22,7 +22,7 @@ jobs:
           override: true
 
       - name: Format
-        run: cargo fmt --tests
+        run: cargo fmt
 
       - name: Clippy linting
         run: cargo clippy  --tests --no-deps -- -W clippy::all -W clippy::pedantic
